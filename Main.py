@@ -7,7 +7,14 @@ from functools import partial
 from scipy.ndimage import gaussian_filter
 from matplotlib.colors import LinearSegmentedColormap
 
+from config import GRID_SIZE, NUM_STEPS, INITIAL_CELL_COUNT, CELL_ROLES, PLASMA_ENERGY, GAS_ENERGY, LIQUID_ENERGY, SOLID_ENERGY, INERT_ENERGY, CELL_FERTILITY_MIN_AGE, CELL_FERTILITY_MAX_AGE, CELL_FERTILITY_CHANCE, CELL_FERTILITY_ENERGY, CELL_REPRODUCTION_FAILURE_COST, CELL_REPRODUCTION_SUCCESS_COST
+
+# TURN STATISTICS
 counter = 0
+babyCounter = 0
+babysThisTurn = babyCounter
+deathSquishCounter = 0
+deathsThisTurn = deathSquishCounter
 
 class Cell:
     def __init__(self, x, y, id, organism=None):
@@ -17,15 +24,15 @@ class Cell:
         self.y = y
         self.energy = random.uniform(0, 200)  # Starting energy level
         self.age = 0  # Age of the cell
-        self.mutation_rate = 0.01  # Probability of mutation during reproduction
+        self.mutation_rate = CELL_BASE_MUTATION_RATE  # Probability of mutation during reproduction
         self.alive = True
         self.role = "general"  # Role of the cell: general, structural, sensory, reproductive
-        self.growth_rate = random.uniform(0.8, 1.2)  # Genetic trait for energy absorption
-        self.resilience = random.uniform(0.8, 1.2)  # Resistance to harsh environments
-        self.perception_strength = random.uniform(0.1, 0.5)  # Communication ability
-        self.speed = random.uniform(0.5, 1.5)  # Speed of movement
+        self.growth_rate = random.uniform(CELL_BASE_MIN_GROWTH_RATE, CELL_BASE_MAX_GROWTH_RATE)  # Genetic trait for energy absorption
+        self.resilience = random.uniform(CELL_BASE_MIN_RESILIENCE, CELL_BASE_MAX_RESILIENCE)  # Resistance to harsh environments
+        self.perception_strength = random.uniform(CELL_BASE_MIN_PERCEPTION, CELL_BASE_MAX_PERCEPTION)  # Communication ability
+        self.speed = random.uniform(CELL_BASE_MIN_SPEED, CELL_BASE_MAX_SPEED)  # Speed of movement
         self.phase_transition() # Call to set cell state & color
-        self.light_emission = 0  # Amount of light emitted (e.g., by plasma or bioluminescence)
+        self.light_emission = CELL_BASE_LIGHT_EMISSION  # Amount of light emitted (e.g., by plasma or bioluminescence)
         self.light_absorption = random.uniform(0.1, 1.0)  # Ability to absorb light
         self.genome = {
             'growth_rate': self.growth_rate,
@@ -37,7 +44,7 @@ class Cell:
         self.organism = organism  # Tracks which organism this cell belongs to
         self.waifuRating = 0
 
-    def move_or_squish(self, moving, direction, grid, inertGrid):
+    def move_or_squish(self, moving, direction, grid, inertGrid, deathCounter):
         dx, dy = direction
         new_x = (self.x + dx) % grid.shape[0]
         new_y = (self.y + dy) % grid.shape[1]
@@ -47,6 +54,8 @@ class Cell:
             moving.energy += max(0, (random.uniform(0.9, 1) * self.energy))
             self.alive = False
             print(f"Died from wall cuddles. Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn")
+            deathCounter += 1
+            inertGrid[self.x, self.y] += 300
             return False
         # Found an empty space
         if grid[new_x, new_y] == 0 or grid[new_x, new_y] is None:
@@ -54,6 +63,7 @@ class Cell:
             self.x = new_x
             self.y = new_y
             grid[self.x, self.y] = self
+            print(f"Escaped a death squish!")
             if not self.alive:
                 inertGrid[self.x, self.y] += 300
             return True
@@ -67,6 +77,8 @@ class Cell:
                     self.alive = False
                     grid[self.x, self.y] = None
                     print(f"Died from cuddles. Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn {self}")
+                    deathCounter += 1
+                    inertGrid[self.x, self.y] += 300
                     return False
                 else:
                     # the destination cell moves out the way
@@ -74,6 +86,7 @@ class Cell:
                     grid[self.x, self.y] = None
                     self.x, self.y = (new_x, new_y)
                     grid[self.x, self.y] = self
+                    print(f"Narrowly escaped a death squish!")
                     if not self.alive:
                         inertGrid[self.x, self.y] += 300
                     
@@ -216,44 +229,48 @@ class Cell:
             
     # State of the cell: solid, liquid, gas, plasma, inert
     def phase_transition(self):
-        if self.energy > 190:
+        if self.energy > PLASMA_ENERGY:
             self.state = "plasma"
             self.hue = random.uniform(0.0, 0.1)
-        elif 150 < self.energy <= 190:
+        elif GAS_ENERGY < self.energy <= PLASMA_ENERGY:
             self.state = "gas"
             self.hue = random.uniform(0.7, 0.75)
-        elif 20 < self.energy <= 150:
+        elif LIQUID_ENERGY < self.energy <= GAS_ENERGY:
             self.state = "liquid"
             self.hue = random.uniform(0.5, 0.7)
-        elif 1 < self.energy <= 20:
+        elif SOLID_ENERGY < self.energy <= LIQUID_ENERGY:
             self.state = "solid"
             self.hue = random.uniform(0.15, 0.35)
-        elif self.energy <= 1:
+        elif INERT_ENERGY < self.energy <= SOLID_ENERGY:
             self.state = "inert"
             self.hue = self.hue if hasattr(self, "hue") else 0
 
     def reproduce(self, grid, environment, counter):
-        if not self.alive or (self.age > 90) or (self.age < 10):
+        if not self.alive or (self.age > CELL_FERTILITY_MAX_AGE) or (self.age < CELL_FERTILITY_MIN_AGE):
             return
         # reproducing a cell inside an organism (will be done in organism)
         #if self.organism is not None:
         #    return
         # Generate a baby cell if enough energy
-        if random.random() < 0.02 or self.waifuRating > 9 or self.energy > 350:
+        if random.random() < CELL_FERTILITY_CHANCE or self.waifuRating > 9 or self.energy > CELL_FERTILITY_ENERGY:
             x, y = (cell.x + random.choice([-1, 1])) % grid.shape[0], (cell.y + random.choice([-1, 1])) % grid.shape[1]
-            self.energy = (self.energy/5)
             if grid[x, y] == 0 or grid[x, y] is None:  # Empty spot
-                print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
-                baby_cell = Cell(x, y, counter, organism=None)
+                babyCounter += 1
                 counter += 1
+                self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
+                baby_cell = Cell(x, y, counter, organism=None)
                 baby_cell.growth_rate = max(0.5, min(2.0, cell.growth_rate + random.uniform(-0.1, 0.1)))
                 baby_cell.resilience = max(0.5, min(2.0, cell.resilience + random.uniform(-0.1, 0.1)))
                 baby_cell.perception_strength = max(0.1, min(1.0, cell.perception_strength + random.uniform(-0.05, 0.05)))
                 baby_cell.speed = max(0.5, min(2.0, cell.speed + random.uniform(-0.1, 0.1)))
-                baby_cell.role = random.choice(cell_roles)
+                baby_cell.role = random.choice(CELL_ROLES)
                 grid[x, y] = baby_cell
+                # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
+                return babyCounter, counter
             else:
-                print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
+                self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
+                # print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
+                return babyCounter, counter
 
     def decay(self, environment, inertGrid):
         if not self.alive:
@@ -306,24 +323,20 @@ class Organism:
             self.name = "Entity_" + str(self.organism_id)
 
 # Simulation parameters
-grid_size = 1000
-num_steps = 50000
-initial_cells = 1000 #50
-cell_roles = ["general", "structural", "sensory", "reproductive"]
 organisms = []
 next_organism_id = 1
 
 # Create grid and environment
-grid = np.zeros((grid_size, grid_size), dtype=object)  # Allow tracking cell states
-environment = np.random.random((grid_size, grid_size)) * 5  # Light levels
-waifuGrid = np.zeros((grid_size, grid_size))
-inertGrid = np.zeros((grid_size, grid_size)) # Fully decayed inerts
+grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=object)  # Allow tracking cell states
+environment = np.random.random((GRID_SIZE, GRID_SIZE)) * 5  # Light levels
+waifuGrid = np.zeros((GRID_SIZE, GRID_SIZE))
+inertGrid = np.zeros((GRID_SIZE, GRID_SIZE)) # Fully decayed inerts
 
 # Enrich environment dynamically
 def enrich_environment(environment, waifuGrid, inertGrid):
     # Brighten some random areas
     for _ in range(5):  # Number of light sources
-        x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+        x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
         environment[x, y] = min(environment[x, y] + 0.1, 5)  # Cap at max brightness
     environment -= 0.05
     environment = np.clip(environment, 0, 100)
@@ -339,11 +352,11 @@ def enrich_environment(environment, waifuGrid, inertGrid):
 def stir_environment(grid):
     # Randomly displace cells to "stir things up"
     for _ in range(100):  # Number of cells to displace
-        x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+        x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
         if isinstance(grid[x, y], Cell):
             dx, dy = random.choice([(0, 1), (1, 0), (0, -1), (-1, 0)])
-            new_x = (x + dx) % grid_size
-            new_y = (y + dy) % grid_size
+            new_x = (x + dx) % GRID_SIZE
+            new_y = (y + dy) % GRID_SIZE
             if grid[new_x, new_y] == 0:
                 grid[new_x, new_y] = grid[x, y]
                 grid[x, y] = 0
@@ -356,18 +369,18 @@ def on_click(counter, event):
     if grid[x, y] == 0 or grid[x, y] is None:
         new_cell = Cell(x, y, counter, organism=None)
         counter += 1
-        new_cell.role = random.choice(cell_roles)
+        new_cell.role = random.choice(CELL_ROLES)
         grid[x, y] = new_cell
         print(f"Placed a {new_cell.role} cell at ({x}, {y})")
 
 cells = []
-for _ in range(initial_cells):
-    x, y = random.randint(0, grid_size - 1), random.randint(0, grid_size - 1)
+for _ in range(INITIAL_CELL_COUNT):
+    x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
     organism = Organism(next_organism_id)
     next_organism_id += 1
     new_cell = Cell(x, y, counter, organism=organism)
     counter += 1
-    new_cell.role = random.choice(cell_roles)
+    new_cell.role = random.choice(CELL_ROLES)
     #new_cell.state = cell.state if random.random() < .001 else False #random.choice([True, False])
     cells.append(new_cell)
     organism.add_cell(new_cell)
@@ -400,7 +413,7 @@ plt.ion()
 fig, ax = plt.subplots()
 cid = fig.canvas.mpl_connect('button_press_event', partial(on_click, counter))
 top_energy = 100
-for step in range(num_steps):
+for step in range(NUM_STEPS):
     print(f"Step {step} start")
     ax.clear()
     #ax.imshow(gridSize, alpha=0.5)
@@ -455,6 +468,7 @@ for step in range(num_steps):
     ax.set_title(f"Step {step + 1} ({alive})")
     print(f"Done plotting, {alive} cells are alive and displayed. Starting env changes")
     plt.pause(0.1)
+    plt.show(block=True)  # Keeps the figure window open until you close it manually
 
     enrich_environment(environment, waifuGrid, inertGrid)  # Replenish nutrients dynamically
 
@@ -476,6 +490,8 @@ for step in range(num_steps):
                     if cell.energy > top_energy:
                         top_energy = cell.energy
     print("Done with env")
+    
+print(f"Turn Summary: There were {babysThisTurn} babies born, {deathsThisTurn} cells died, ")
     """
     new_organisms = []
     for organism in organisms:
