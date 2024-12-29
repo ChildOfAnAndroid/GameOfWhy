@@ -31,10 +31,10 @@ class Visualisation:
                 if isinstance(cell, Cell): #and cell.alive:
                     if cell.alive:
                         self.stats.addCellAlive()
-                        try:
-                            self.ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor()))
-                        except Exception as e:
-                            print(f"Exception: Color is {cell.getCellColor()} (current energy {cell.energy} top_energy {cell.topEnergy}) ; state: {cell.state} alive: {cell.alive} {cell} ({e})")
+                    try:
+                        self.ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor()))
+                    except Exception as e:
+                        print(f"Exception: Color is {cell.getCellColor()} (current energy {cell.energy} top_energy {cell.topEnergy}) ; state: {cell.state} alive: {cell.alive} {cell} ({e})")
         """
         for organism in organisms:
             if organism.is_alive():
