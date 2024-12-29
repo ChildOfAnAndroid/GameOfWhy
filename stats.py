@@ -12,6 +12,8 @@ class Stats:
         # death statistics
         self.cellDeathCounter = {}
         self.cellDeathEscapeCounter = 0
+        self.cellDisintegrationCounter = 0
+        self.cellDisintegrationDeathCounter = 0
 
         # birth statistics
         self.cellBabyCounter = 0
@@ -62,6 +64,7 @@ Total Cell Count: {self.cellCounter+1}
 Total Cell Death: {self.getTotalDeath()}
 By Reason:
 {"\n".join([f"{x}: {self.cellDeathCounter[x]}" for x in self.cellDeathCounter])}
+Total Disintegrations: {self.cellDisintegrationCounter} (fully reclaimed: {self.cellDisintegrationDeathCounter})
 Total Cell Escapes: {self.cellDeathEscapeCounter}
 
 # Birth Statistics
@@ -131,6 +134,12 @@ Cells Alive: {self.cellAliveCount} (Youth: {self.cellYouthCount}, Adults: {self.
 
     def addCellAdult(self):
         self.cellAdultCount += 1
+
+    def addCellDisintegration(self):
+        self.cellDisintegrationCounter += 1
+
+    def addCellDisintegrationDeath(self):
+        self.cellDisintegrationDeathCounter += 1
 
     def getTotalDeath(self):
         total = 0

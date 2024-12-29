@@ -302,23 +302,23 @@ class Cell:
             
     # State of the cell: solid, liquid, gas, plasma, inert
     def phaseTransition(self):
-        if self.energy > CELL_STATE_PLASMA_ENERGY:
+        if (not hasattr(self, "state") or self.state != "plasma") and self.energy > CELL_STATE_PLASMA_ENERGY:
             self.state = "plasma"
             self.hue = random.uniform(CELL_STATE_PLASMA_COLOR_MIN, CELL_STATE_PLASMA_COLOR_MAX)
             self.alpha = random.uniform(CELL_STATE_PLASMA_ALPHA_MIN, CELL_STATE_PLASMA_ALPHA_MAX)
-        elif CELL_STATE_GAS_ENERGY < self.energy <= CELL_STATE_PLASMA_ENERGY:
+        elif (not hasattr(self, "state") or self.state != "gas") and CELL_STATE_GAS_ENERGY < self.energy <= CELL_STATE_PLASMA_ENERGY:
             self.state = "gas"
             self.hue = random.uniform(CELL_STATE_GAS_COLOR_MIN, CELL_STATE_GAS_COLOR_MAX)
             self.alpha = random.uniform(CELL_STATE_GAS_ALPHA_MIN, CELL_STATE_GAS_ALPHA_MAX)
-        elif CELL_STATE_LIQUID_ENERGY < self.energy <= CELL_STATE_GAS_ENERGY:
+        elif (not hasattr(self, "state") or self.state != "liquid") and CELL_STATE_LIQUID_ENERGY < self.energy <= CELL_STATE_GAS_ENERGY:
             self.state = "liquid"
             self.hue = random.uniform(CELL_STATE_LIQUID_COLOR_MIN, CELL_STATE_LIQUID_COLOR_MAX)
             self.alpha = random.uniform(CELL_STATE_LIQUID_ALPHA_MIN, CELL_STATE_LIQUID_ALPHA_MAX)
-        elif CELL_STATE_MESOPHASE_ENERGY < self.energy <= CELL_STATE_LIQUID_ENERGY:
+        elif (not hasattr(self, "state") or self.state != "mesophase") and CELL_STATE_MESOPHASE_ENERGY < self.energy <= CELL_STATE_LIQUID_ENERGY:
             self.state = "mesophase"
             self.hue = random.uniform(CELL_STATE_MESOPHASE_COLOR_MIN, CELL_STATE_MESOPHASE_COLOR_MAX)
             self.alpha = random.uniform(CELL_STATE_MESOPHASE_ALPHA_MIN, CELL_STATE_MESOPHASE_ALPHA_MAX)
-        elif CELL_STATE_SOLID_ENERGY < self.energy <= CELL_STATE_MESOPHASE_ENERGY:
+        elif (not hasattr(self, "state") or self.state != "solid") and CELL_STATE_SOLID_ENERGY < self.energy <= CELL_STATE_MESOPHASE_ENERGY:
             self.state = "solid"
             self.hue = random.uniform(CELL_STATE_SOLID_COLOR_MIN, CELL_STATE_SOLID_COLOR_MAX)
             self.alpha = CELL_STATE_SOLID_ALPHA_MIN
@@ -330,10 +330,10 @@ class Cell:
     def reproduce(self):
         if not self.alive:
             return False
-        if not (self.age > self.fertilityAgeMax):
+        if self.age > self.fertilityAgeMax:
             self.stats.addCellElderly()
             return False
-        if not  (self.age < self.fertilityAgeMin):
+        if self.age < self.fertilityAgeMin:
             self.stats.addCellYouth()
             return False
         self.stats.addCellAdult()
@@ -343,19 +343,23 @@ class Cell:
         # Generate a baby cell if enough energy
         if random.random() < self.fertilityRate or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
             if self.state is "inert": # inert cells 'birth' enrichment onto environment
+                enrichInert = min(self.age, self.mass)
                 self.mass -= enrichInert
-                self.environment.addInertAt(self.x, self.y, self.age) # 20% at self, 10% at each adjacent
+                self.environment.addInertAt(self.x, self.y, enrichInert * .2) # 20% at self, 10% at each adjacent
+                self.environment.addInertAt(self.x + 1, self.y, enrichInert * .1) # Top
+                self.environment.addInertAt(self.x, self.y + 1, enrichInert * .1) # Right
+                self.environment.addInertAt(self.x - 1, self.y, enrichInert * .1) # Bottom
+                self.environment.addInertAt(self.x, self.y - 1, enrichInert * .1) # Left
+                self.stats.addCellDisintegration()
                 if self.mass <= 0:
                     # disappear from board
-                    cellDisintegrationDeathCount += 1
-                    cellDisinntegrationCount += 1
-                else:
-                    cellDisintegrationCount += 1
+                    self.environment.removeCellFromGrid(self)
+                    self.stats.addCellDisintegrationDeath()
             else: 
                 x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
                 if self.environment.canAddCellAt(x, y):  # Empty spot
                     self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
-                    baby_cell = Cell(x, y, self.stats, organism=None)
+                    baby_cell = Cell(x, y, self.stats, self.environment, organismCheck=None)
                     baby_cell.growthRate = max(0.5, min(2.0, self.growthRate + random.uniform(CELL_BABY_MUTATION_GROWTH_MIN, CELL_BABY_MUTATION_GROWTH_MAX)))
                     baby_cell.resilience = max(0.5, min(2.0, self.resilience + random.uniform(CELL_BABY_MUTATION_RESILIENCE_MIN, CELL_BABY_MUTATION_RESILIENCE_MAX)))
                     baby_cell.perceptionStrength = max(0.1, min(1.0, self.perceptionStrength + random.uniform(CELL_BABY_MUTATION_PERCEPTION_MIN, CELL_BABY_MUTATION_PERCEPTION_MAX)))

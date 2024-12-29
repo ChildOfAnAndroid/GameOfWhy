@@ -51,8 +51,12 @@ class Environment:
         if turn % 100 == 0 and False: # disabled for now
             self.stir_environment()
 
-    def attemptForcedSpawn(self, coords):
+    def _boundXY(self, coords):
         x, y = coords
+        return x % self.grid.shape[0], y % self.grid.shape[1]
+
+    def attemptForcedSpawn(self, coords):
+        x, y = self.boundXY(coords)
         if self.grid[x, y] == 0 or self.grid[x, y] is None:
             self.stats.addCellForcedSpawn()
             new_cell = Cell(x, y, self.stats, organism=None)
@@ -65,10 +69,12 @@ class Environment:
 
     # Get light amount at a coordinate
     def getLightAt(self, x, y):
+        x, y = self._boundXY((x, y))
         return self.lightGrid[x, y]
     
     # Change light amount at a coordinate by an arbitrarty amount while ensuring bounds
     def setLightAt(self, x, y, value):
+        x, y = self._boundXY((x, y))
         self.lightGrid[x, y] = min(ENVIRONMENT_LIGHT_CLIP_MAX, max(ENVIRONMENT_LIGHT_CLIP_MIN, value))
         return self.lightGrid[x, y] > 0
     
@@ -79,16 +85,19 @@ class Environment:
         return self.addLightAt(x, y, amount * -1)
     
     def getAttractivenessAt(self, x, y):
+        x, y = self._boundXY((x, y))
         return self.waifuGrid[x, y]
     
     def addAttractivenessAt(self, x, y, amount):
         return self.setAttractivenessAt(x, y, self.getAttractivenessAt(x, y) + amount)
     
     def setAttractivenessAt(self, x, y, value):
+        x, y = self._boundXY((x, y))
         self.waifuGrid[x, y] = min(ENVIRONMENT_ATTRACTIVENESS_CLIP_MAX, max(ENVIRONMENT_ATTRACTIVENESS_CLIP_MIN, value))
         return self.waifuGrid[x, y] > 0
     
     def getInertAt(self, x, y):
+        x, y = self._boundXY((x, y))
         return self.inertGrid[x, y]
     
     def addInertAt(self, x, y, amount):
@@ -98,27 +107,32 @@ class Environment:
         return self.addInertAt(x, y, amount * -1)
 
     def setInertAt(self, x, y, value):
+        x, y = self._boundXY((x, y))
         self.inertGrid[x, y] = value
         return self.inertGrid[x, y] > 0
     
     def getCellsAt(self, x, y):
+        x, y = self._boundXY((x, y))
         return [self.grid[x, y]]
         # return self.grid[x, y]
 
     def getCellAt(self, x, y):
+        x, y = self._boundXY((x, y))
         return self.grid[x, y]
     
     def setCellAt(self, x, y, cell):
+        x, y = self._boundXY((x, y))
         self.grid[x, y] = cell
 
     def moveCellTo(self, x, y, cell):
+        x, y = self._boundXY((x, y))
         self.grid[cell.x, cell.y] = None
         self.grid[x, y] = cell
         cell.x = x
         cell.y = y
 
     def removeCellAt(self, x, y, cell):
-        if self.grid[x, y] == cell:
+        if self.getCellAt(x, y) == cell:
             self.setCellAt(x, y, None)
         else:
             raise Exception("The cell {cell} isn't located here and can't be removed")
@@ -127,5 +141,6 @@ class Environment:
         self.removeCellAt(cell.x, cell.y, cell)
 
     def canAddCellAt(self, x, y):
+        x, y = self._boundXY((x, y))
         return self.grid[x, y] is None or self.grid[x, y] == 0
         # len(self.grid[x, y]) == 0 or (len(self.grid[x, y]) == 1 and self.grid[x, y][0].state == "gas")
