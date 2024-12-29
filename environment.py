@@ -56,10 +56,10 @@ class Environment:
         return x % self.grid.shape[0], y % self.grid.shape[1]
 
     def attemptForcedSpawn(self, coords):
-        x, y = self.boundXY(coords)
+        x, y = self._boundXY(coords)
         if self.grid[x, y] == 0 or self.grid[x, y] is None:
             self.stats.addCellForcedSpawn()
-            new_cell = Cell(x, y, self.stats, organism=None)
+            new_cell = Cell(x, y, self.stats, self, organismCheck=None)
             new_cell.role = random.choice(CELL_ROLES)
             self.grid[x, y] = new_cell
             print(f"Placed a {new_cell.role} cell at ({x}, {y})")

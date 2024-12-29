@@ -14,7 +14,7 @@ class Visualisation:
         self.environments = environments
         plt.ion()
         self.fig, self.ax = plt.subplots()
-        self.cid = self.fig.canvas.mpl_connect('button_press_event', partial(self.on_click, self))
+        self.cid = self.fig.canvas.mpl_connect('button_press_event', self.on_click)
 
     def runLoop(self, turn):
         top_energy = VISUALISATION_BASE_ENERGY_TOP_RECORD
@@ -84,4 +84,4 @@ class Visualisation:
         if event.xdata is None or event.ydata is None:
             return
         x, y = int(event.ydata), int(event.xdata)
-        self.environment.attemptForcedSpawn((x, y))
+        self.environments.attemptForcedSpawn((x, y))
