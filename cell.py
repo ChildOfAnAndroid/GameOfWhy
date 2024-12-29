@@ -334,7 +334,7 @@ class Cell:
         #if self.organism is not None:
         #    return False
         # Generate a baby cell if enough energy
-        if random.random() < self.fertility or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
+        if random.random() < self.fertilityRate or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
             x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
             if self.environment.canAddCellAt(x, y):  # Empty spot
                 self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
