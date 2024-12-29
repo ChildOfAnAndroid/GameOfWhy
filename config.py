@@ -4,9 +4,9 @@
 from matplotlib.colors import LinearSegmentedColormap
 
 # ENVIRONMENT SIMULATION SETTINGS #
-GRID_SIZE = 100
+GRID_SIZE = 10
 NUM_STEPS = 50000
-CELL_BASE_COUNT = 1000 #50
+CELL_BASE_COUNT = 1 #50
 
 # phase transition boundaries
 CELL_STATE_PLASMA_ENERGY = 200
