@@ -335,25 +335,33 @@ class Cell:
         #    return False
         # Generate a baby cell if enough energy
         if random.random() < self.fertilityRate or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
-            x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
-            if self.environment.canAddCellAt(x, y):  # Empty spot
-                self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
-                baby_cell = Cell(x, y, self.stats, organism=None)
-                baby_cell.growthRate = max(0.5, min(2.0, self.growthRate + random.uniform(CELL_BABY_MUTATION_GROWTH_MIN, CELL_BABY_MUTATION_GROWTH_MAX)))
-                baby_cell.resilience = max(0.5, min(2.0, self.resilience + random.uniform(CELL_BABY_MUTATION_RESILIENCE_MIN, CELL_BABY_MUTATION_RESILIENCE_MAX)))
-                baby_cell.perceptionStrength = max(0.1, min(1.0, self.perceptionStrength + random.uniform(CELL_BABY_MUTATION_PERCEPTION_MIN, CELL_BABY_MUTATION_PERCEPTION_MAX)))
-                baby_cell.speed = max(0.5, min(2.0, self.speed + random.uniform(CELL_BABY_MUTATION_SPEED_MIN, CELL_BABY_MUTATION_SPEED_MAX)))
-                baby_cell.role = random.choice(CELL_ROLES)
-                self.environment.setCellAt(x, y, baby_cell)
-                # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
-                self.stats.addCellBaby()
-                return True
-            else:
-                self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
-                # print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
-                self.stats.addCellBabyFailed()
-                return False
-        return False
+            if self.state is "inert":
+                self.energy -= (self.age/self.energy)
+                if self.energy <= 0:
+                    self.alive = False
+                    cellDisintegrationDeathCount += 1
+                    cellDisinntegrationCount += 1
+                else:
+                    cellDisintegrationCount += 1
+            else: x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
+                if self.environment.canAddCellAt(x, y):  # Empty spot
+                    self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
+                    baby_cell = Cell(x, y, self.stats, organism=None)
+                    baby_cell.growthRate = max(0.5, min(2.0, self.growthRate + random.uniform(CELL_BABY_MUTATION_GROWTH_MIN, CELL_BABY_MUTATION_GROWTH_MAX)))
+                    baby_cell.resilience = max(0.5, min(2.0, self.resilience + random.uniform(CELL_BABY_MUTATION_RESILIENCE_MIN, CELL_BABY_MUTATION_RESILIENCE_MAX)))
+                    baby_cell.perceptionStrength = max(0.1, min(1.0, self.perceptionStrength + random.uniform(CELL_BABY_MUTATION_PERCEPTION_MIN, CELL_BABY_MUTATION_PERCEPTION_MAX)))
+                    baby_cell.speed = max(0.5, min(2.0, self.speed + random.uniform(CELL_BABY_MUTATION_SPEED_MIN, CELL_BABY_MUTATION_SPEED_MAX)))
+                    baby_cell.role = random.choice(CELL_ROLES)
+                    self.environment.setCellAt(x, y, baby_cell)
+                    # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
+                    self.stats.addCellBaby()
+                    return True
+                else:
+                    self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
+                    # print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
+                    self.stats.addCellBabyFailed()
+                    return False
+            return False
 
     def decay(self):
         if not self.alive:

@@ -21,8 +21,15 @@ Plasma: Acts as a "sun cell," causing transformations and high-energy disruption
 
 etcetcetcEnergyMin:
     if self.state is "inert":
-        inert cells on board lose 
-        self.energy = (self.energy/CELL_INERT_
+        self.energy -= (self.age/self.energy)
+        if self.energy <= 0:
+            self.alive = False
+            cellDisintegrationDeathCount += 1
+            cellDisinntegrationCount += 1
+        else:
+            cellDisintegrationCount += 1
+    else
+        
     if unbebe part
     else un-bebe part
 
