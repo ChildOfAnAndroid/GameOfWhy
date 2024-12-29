@@ -19,7 +19,7 @@ class Cell:
         self.age = 0  # cell age (in turns)
         self.organism = organismCheck  # Tracks which organism this cell belongs to
         self.stats = stats
-        self.attrctiveness = CELL_BASE_ATTRACTIVENESS_MIN
+        self.attractiveness = CELL_BASE_ATTRACTIVENESS_MIN
         self.turnCount = 0 # turn checker
         self.x = x # position x
         self.y = y # position y
@@ -41,6 +41,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_PLASMA_FERTILITY_START_AGE_MIN, CELL_PLASMA_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_PLASMA_FERTILITY_END_AGE_MIN, CELL_PLASMA_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_PLASMA_FERTILITY_ENERGY_MIN, CELL_PLASMA_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_PLASMA_MASS_MIN, CELL_PLASMA_MASS_MAX)
         elif self.state == "gas":
             self.growthRate = random.uniform(CELL_GAS_GROWTH_RATE_MIN, CELL_GAS_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_GAS_RESILIENCE_MIN, CELL_GAS_RESILIENCE_MAX)
@@ -54,6 +55,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_GAS_FERTILITY_START_AGE_MIN, CELL_GAS_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_GAS_FERTILITY_END_AGE_MIN, CELL_GAS_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_GAS_FERTILITY_ENERGY_MIN, CELL_GAS_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_GAS_MASS_MIN, CELL_GAS_MASS_MAX)
         elif self.state == "liquid":
             self.growthRate = random.uniform(CELL_LIQUID_GROWTH_RATE_MIN, CELL_LIQUID_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_LIQUID_RESILIENCE_MIN, CELL_LIQUID_RESILIENCE_MAX)
@@ -67,6 +69,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_LIQUID_FERTILITY_START_AGE_MIN, CELL_LIQUID_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_LIQUID_FERTILITY_END_AGE_MIN, CELL_LIQUID_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_LIQUID_FERTILITY_ENERGY_MIN, CELL_LIQUID_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_LIQUID_MASS_MIN, CELL_LIQUID_MASS_MAX)
         elif self.state == "mesophase": # CRYSTALLINE
             self.growthRate = random.uniform(CELL_MESOPHASE_GROWTH_RATE_MIN, CELL_MESOPHASE_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_MESOPHASE_RESILIENCE_MIN, CELL_MESOPHASE_RESILIENCE_MAX)
@@ -80,6 +83,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_MESOPHASE_FERTILITY_START_AGE_MIN, CELL_MESOPHASE_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_MESOPHASE_FERTILITY_END_AGE_MIN, CELL_MESOPHASE_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_MESOPHASE_FERTILITY_ENERGY_MIN, CELL_MESOPHASE_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_MESOPHASE_MASS_MIN, CELL_MESOPHASE_MASS_MAX)
         elif self.state == "solid": # CRYSTALLINE
             self.growthRate = random.uniform(CELL_SOLID_GROWTH_RATE_MIN, CELL_SOLID_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_SOLID_RESILIENCE_MIN, CELL_SOLID_RESILIENCE_MAX)
@@ -93,6 +97,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_SOLID_FERTILITY_START_AGE_MIN, CELL_SOLID_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_SOLID_FERTILITY_END_AGE_MIN, CELL_SOLID_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_SOLID_FERTILITY_ENERGY_MIN, CELL_SOLID_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_SOLID_MASS_MIN, CELL_SOLID_MASS_MAX)
         elif self.state == "inert":
             self.growthRate = random.uniform(CELL_INERT_GROWTH_RATE_MIN, CELL_INERT_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_INERT_RESILIENCE_MIN, CELL_INERT_RESILIENCE_MAX)
@@ -106,6 +111,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_INERT_FERTILITY_START_AGE_MIN, CELL_INERT_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_INERT_FERTILITY_END_AGE_MIN, CELL_INERT_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_INERT_FERTILITY_ENERGY_MIN, CELL_INERT_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_INERT_MASS_MIN, CELL_INERT_MASS_MAX)
         else:
             self.growthRate = random.uniform(CELL_BASE_GROWTH_RATE_MIN, CELL_BASE_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_BASE_RESILIENCE_MIN, CELL_BASE_RESILIENCE_MAX)
@@ -119,6 +125,7 @@ class Cell:
             self.fertilityAgeMin = random.uniform(CELL_BASE_FERTILITY_START_AGE_MIN, CELL_BASE_FERTILITY_START_AGE_MAX)
             self.fertilityAgeMax = random.uniform(CELL_BASE_FERTILITY_END_AGE_MIN, CELL_BASE_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_BASE_FERTILITY_ENERGY_MIN, CELL_BASE_FERTILITY_ENERGY_MAX)
+            self.mass = random.uniform(CELL_BASE_MASS_MIN, CELL_BASE_MASS_MAX)
 
 
     def moveOrSquish(self, moving, direction):
@@ -337,9 +344,9 @@ class Cell:
         if random.random() < self.fertilityRate or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
             if self.state is "inert": # inert cells 'birth' enrichment onto environment
                 self.mass -= enrichInert
-                self.environment.addInertAt(self.x, self.y, self.age)
+                self.environment.addInertAt(self.x, self.y, self.age) # 20% at self, 10% at each adjacent
                 if self.mass <= 0:
-                    self.alive = False
+                    # disappear from board
                     cellDisintegrationDeathCount += 1
                     cellDisinntegrationCount += 1
                 else:
