@@ -16,7 +16,7 @@ class Stats:
         self.cellDisintegrationDeathCounter = 0
 
         # birth statistics
-        self.cellBabyCounter = 0
+        self.cellBabyCounter = {}
         self.cellBabysFailedCounter = {}
         self.cellForcedSpawnCounter = 0
         self.cellFailedForcedSpawnCounter = 0
@@ -76,8 +76,14 @@ Total Disintegrations: {self.cellDisintegrationCounter} (fully reclaimed: {self.
 Total Cell Escapes: {self.cellDeathEscapeCounter}
 
 # Birth Statistics
-Total Cell Babies: {self.cellBabyCounter} (manual {self.cellForcedSpawnCounter})
-Total Cell Skipped Babies: {self.cellBabysFailedCounter} (manual {self.cellFailedForcedSpawnCounter})
+Total Cell Babies: {self.cellBabyCounter}
+By Reason:
+{"\n".join([f"{x}: {self.cellBabyCounter[x]}" for x in self.cellBabyCounter])}
+Total Cell Skipped Babies: {self.cellBabysFailedCounter}
+By Reason:
+{"\n".join([f"{x}: {self.cellBabysFailedCounter[x]}" for x in self.cellBabysFailedCounter])}
+Total Cell Babies Spawned: {self.cellForcedSpawnCounter}
+Total Cell Babies Unspawned: {self.cellFailedForcedSpawnCounter}
 
 # Movement Statistics
 Total Cell Movements: {self.cellMovedCounter}
@@ -105,8 +111,17 @@ Stable Cell States: {self.cellStateStableThisTurn}
 """
 
     def addCellBaby(self):
-        self.cellBabyCounter += 1
-        self.cellBabysThisTurn += 1
+        if reason in self.cellBabyCounter:
+            self.cellBabyCounter[reason] += 1
+
+        else:
+            self.cellBabyCounter[reason] = 1
+        
+        if reason in self.cellBabysThisTurn[reason]:
+            self.cellBabysThisTurn[reason] += 1
+
+        else:
+            self.cellBabysThisTurn[reason] = 1
     
     def addCellBabyFailed(self, reason):
         if reason in self.cellBabysFailedCounter:

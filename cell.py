@@ -11,6 +11,9 @@ cellAdultCount = 0
 
 class Cell:
     topEnergy = 1
+    CellAttractivenessTopRecord = CELL_ATTRACTIVENESS_TOP_RECORD_INIT
+    ratioResult = 0
+    attractivenessGain = 0
     def __init__(self, x, y, stats, environment, organismCheck=None):
         self.id = stats.getCellNextID() # Cell ID
         self.alive = True
@@ -24,6 +27,9 @@ class Cell:
         self.turnCount = 0 # turn checker
         self.x = x # position x
         self.y = y # position y
+        self.memory = []
+        self.previousAlive = 0
+        self.topEnergyDecay = 0
 
         self.energy = random.uniform(CELL_BASE_ENERGY_MIN, CELL_BASE_ENERGY_MAX)  # Starting energy level
         self.phaseTransition() # Call to set cell state & color
@@ -133,8 +139,8 @@ class Cell:
             self.lightEmission = random.uniform(CELL_BASE_LIGHT_EMISSION_MIN, CELL_BASE_LIGHT_EMISSION_MAX)
             self.lightAbsorption = random.uniform(CELL_BASE_LIGHT_ABSORPTION_MIN, CELL_BASE_LIGHT_ABSORPTION_MAX)
             self.mutationRate = random.uniform(CELL_BASE_MUTATION_RATE_MIN, CELL_BASE_MUTATION_RATE_MAX)
-            self.lifeExpectancyMin = random.uniform(0.95, 1.05) * CELL_PLASMA_DEATH_AGE_MAX
-            self.lifeExpectancyMax = random.uniform(0.95, 1.05) * CELL_PLASMA_DEATH_AGE_MAX
+            self.lifeExpectancyMin = random.uniform(0.95, 1.05) * CELL_BASE_DEATH_AGE_MAX
+            self.lifeExpectancyMax = random.uniform(0.95, 1.05) * CELL_BASE_DEATH_AGE_MAX
             self.lifeExpectancy = random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)
             self.fertilityRate = random.uniform(CELL_BASE_FERTILITY_RATE_MIN, CELL_BASE_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = random.uniform(CELL_BASE_FERTILITY_START_AGE_MIN, CELL_BASE_FERTILITY_START_AGE_MAX)
@@ -153,6 +159,7 @@ class Cell:
             print(f"Escaped a death squish!")
             self.stats.addCellDeathEscape()
             self.stats.addCellMove()
+            self.memory.append((self.turnCount, "Escaped a death squish!", (new_x, new_y)))
             if not self.alive: # if cell is already inert and needs to move, update inertGrid
                 self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
             return True
@@ -162,11 +169,13 @@ class Cell:
                 if cell.resilience > self.resilience:
                     # the target cell get squished
                     ratio = random.uniform(CELL_DEATH_RELEASE_SQUISH_MIN, CELL_DEATH_RELEASE_SQUISH_MAX)
-                    cell.energy += max(0, self.energy * ratio) # Squish release of energy (norty?!)
+                    ratioResult = max(0, self.energy * ratio) # Squish release of energy (norty?!)
+                    cell.energy += ratioResult
                     moving.energy += max(0, self.energy * (1-ratio))
                     self.alive = False
                     self.environment.removeCellFromGrid(self)
-                    print(f"Died from cuddles. Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn {self}")
+                    print(f"Died from cuddles. Energy: {self.energy}, lost {ratioResult} this turn {self}")
+                    self.memory.append((self.turnCount, "Died from cuddles", (self.x, self.y)))
                     self.stats.addCellDeath(CELL_DEATH_REASON_SQUISH)
                     self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
                     return False
@@ -177,6 +186,7 @@ class Cell:
                     print(f"The Vengabus is Evolving O.o")
                     self.stats.addCellPush()
                     self.stats.addCellMove()
+                    self.memory.append((self.turnCount, "Move Bounced", (new_x, new_y)))
                     if not self.alive:
                         self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
                     
@@ -202,7 +212,7 @@ class Cell:
                self.environment.grid[new_x, new_y] == "gas":  # Allow passage through gas
                 # print(f"Space is empty signal is {abs(lightGrid[new_x, new_y])} * {self.perception_strength}, max_signal is currently {max_signal}")
                 # TODO: change that to having "moving towards the highest energy cell it can sense"
-                signal = (abs(self.environment.lightGrid[new_x, new_y]) * (self.environment.waifuGrid[new_x, new_y]) * self.perceptionStrength) * ENVIRONMENT_VISIBILITY_MULTIPLIER
+                signal = (abs((self.environment.lightGrid[new_x, new_y]) + (self.environment.waifuGrid[new_x, new_y])) * self.perceptionStrength) * ENVIRONMENT_VISIBILITY_MULTIPLIER
                 # print(f"env: {lightGrid[new_x, new_y]} wai: {waifuGrid[new_x, new_y]} per: {self.perception_strength}")
                 if signal > max_signal:
                     # print(f"Best signal")
@@ -228,6 +238,7 @@ class Cell:
             # print(f"Moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
             self.environment.moveCellTo(new_x, new_y, self)
             self.stats.addCellMove()
+            self.memory.append((self.turnCount, "Moved", (new_x, new_y)))
         else:
             if (dx, dy) == (0, 1) and blockCounter < 4:
                 dx, dy = (1, 0)
@@ -235,29 +246,35 @@ class Cell:
                 blockCounter += 1
                 self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
                 self.stats.addCellMove()
+                self.memory.append((self.turnCount, "Moved to 2nd best position", (new_x, new_y)))
             if (dx, dy) == (1, 0) and blockCounter < 4:
                 dx, dy = (0, -1)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
                 self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
                 self.stats.addCellMove()
+                self.memory.append((self.turnCount, "Moved to 3rd best position", (new_x, new_y)))
             if (dx, dy) == (0, -1) and blockCounter < 4:
                 dx, dy = (-1, 0)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
                 self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
                 self.stats.addCellMove()
+                self.memory.append((self.turnCount, "Moved to worst position", (new_x, new_y)))
             if (dx, dy) == (-1, 0) and blockCounter < 4:
                 dx, dy = (0, 1)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
                 self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
                 self.stats.addCellMove()
+                self.memory.append((self.turnCount, "Move Looped", (new_x, new_y)))
             else:
                 if self.x != new_x or self.y != new_y:
                     print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
+                    self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
                 else:
                     print(f"Failed moving {self.id} onto itself")
+                    self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
         
     def getCellColor(self):
         if self.organism:
@@ -275,17 +292,23 @@ class Cell:
     def absorbNutrients(self):
         if self.alive:
             nutrients = self.environment.getLightAt(self.x, self.y) #lightGrid[self.x, self.y]
-            nutrientAbsorptionValue = nutrients * self.growthRate * 0.1
+            nutrientAbsorptionValue = nutrients * self.growthRate
             self.energy += nutrientAbsorptionValue
-            self.environment.depleteLightAt(self.x, self.y, (nutrientAbsorptionValue*ENVIRONMENT_LIGHT_ABSORPTION_WASTE))
+            self.environment.depleteLightAt(self.x, self.y, (nutrientAbsorptionValue * ENVIRONMENT_LIGHT_ABSORPTION_WASTE))
+            self.memory.append((self.turnCount, "Gained Light Energy", nutrientAbsorptionValue))
+            print(f"Turn {self.turnCount}: Cell {self.id} gained {nutrientAbsorptionValue} energy. Total: {self.energy}")
             # self.environment.lightGrid[self.x, self.y] = max(self.environment.lightGrid[self.x, self.y] - 0.02, 0)  # Deplete nutrients
 
     def emitLight(self):
         if self.state == "plasma": # Plasma cells consistently emit high light
             self.lightEmission = 5
+            self.topEnergy = self.topEnergy - (self.topEnergy * CELL_LIGHT_EMISSION_ENERGY_COST_MULTIPLIER)
+            self.memory.append((self.turnCount, "Emitted light", (self.lightEmission)))
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         elif random.random() < 0.01 and self.energy > self.fertilityEnergyMin: # Non-plasma cells have a random chance to emit light
             self.lightEmission = 1
+            self.memory.append((self.turnCount, "Suddenly emitted light?!", (self.lightEmission)))
+            self.lightEmission = 0
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         else:
             self.lightEmission = 0
@@ -296,10 +319,13 @@ class Cell:
             self.environment.addAttractivenessAt(self.x, self.y, self.attractiveness)
             # waifuGrid[self.x, self.y] = min(waifuGrid[self.x, self.y] + self.attractiveness, 100)
             vibes = self.environment.getAttractivenessAt(self.x, self.y) # waifuGrid[self.x, self.y]
-            self.attractiveness += vibes * self.growthRate * (CELL_ATTRACTIVENESS_GAIN_MODIFIER/50)
+            attractivenessGain = vibes * self.growthRate * (CELL_ATTRACTIVENESS_GAIN_MODIFIER/50)
+            self.attractiveness += attractivenessGain
+            self.memory.append((self.turnCount, "DAT ASS GAINED ATTRACTIVENESS", {attractivenessGain}))
         else:
             self.environment.setAttractivenessAt(self.x, self.y, 0)
             # waifuGrid[self.x, self.y] = 0
+            self.memory.append((self.turnCount, "Even my death turns people off!?", 0))
 
     def senseEnvironment(self):
         if not self.alive:
@@ -324,6 +350,7 @@ class Cell:
                 self.hue = random.uniform(CELL_STATE_PLASMA_COLOR_MIN, CELL_STATE_PLASMA_COLOR_MAX)
                 self.alpha = random.uniform(CELL_STATE_PLASMA_ALPHA_MIN, CELL_STATE_PLASMA_ALPHA_MAX)
                 self.stats.addCellStateChange("plasma")
+                self.memory.append((self.turnCount, "Became Plasma", 0))
             else:
                 self.stats.addCellStateStable()
         elif CELL_STATE_GAS_ENERGY < self.energy <= CELL_STATE_PLASMA_ENERGY:
@@ -332,6 +359,7 @@ class Cell:
                 self.hue = random.uniform(CELL_STATE_GAS_COLOR_MIN, CELL_STATE_GAS_COLOR_MAX)
                 self.alpha = random.uniform(CELL_STATE_GAS_ALPHA_MIN, CELL_STATE_GAS_ALPHA_MAX)
                 self.stats.addCellStateChange("gas")
+                self.memory.append((self.turnCount, "Became Gas", 0))
             else:
                 self.stats.addCellStateStable()
         elif CELL_STATE_LIQUID_ENERGY < self.energy <= CELL_STATE_GAS_ENERGY:
@@ -340,6 +368,7 @@ class Cell:
                 self.hue = random.uniform(CELL_STATE_LIQUID_COLOR_MIN, CELL_STATE_LIQUID_COLOR_MAX)
                 self.alpha = random.uniform(CELL_STATE_LIQUID_ALPHA_MIN, CELL_STATE_LIQUID_ALPHA_MAX)
                 self.stats.addCellStateChange("liquid")
+                self.memory.append((self.turnCount, "Became Liquid", 0))
             else:
                 self.stats.addCellStateStable()
         elif CELL_STATE_MESOPHASE_ENERGY < self.energy <= CELL_STATE_LIQUID_ENERGY:
@@ -348,6 +377,7 @@ class Cell:
                 self.hue = random.uniform(CELL_STATE_MESOPHASE_COLOR_MIN, CELL_STATE_MESOPHASE_COLOR_MAX)
                 self.alpha = random.uniform(CELL_STATE_MESOPHASE_ALPHA_MIN, CELL_STATE_MESOPHASE_ALPHA_MAX)
                 self.stats.addCellStateChange("mesophase")
+                self.memory.append((self.turnCount, "Entered the Mesophase", 0))
             else:
                 self.stats.addCellStateStable()
         elif CELL_STATE_SOLID_ENERGY < self.energy <= CELL_STATE_MESOPHASE_ENERGY:
@@ -356,6 +386,7 @@ class Cell:
                 self.hue = random.uniform(CELL_STATE_SOLID_COLOR_MIN, CELL_STATE_SOLID_COLOR_MAX)
                 self.alpha = random.uniform(CELL_STATE_SOLID_ALPHA_MIN, CELL_STATE_SOLID_ALPHA_MAX)
                 self.stats.addCellStateChange("solid")
+                self.memory.append((self.turnCount, "Got Hard", 0))
             else:
                 self.stats.addCellStateStable()
         elif CELL_STATE_INERT_ENERGY < self.energy <= CELL_STATE_SOLID_ENERGY:
@@ -364,6 +395,7 @@ class Cell:
                 self.hue = self.hue if hasattr(self, "hue") else random.uniform(CELL_STATE_INERT_COLOR_MIN, CELL_STATE_INERT_COLOR_MAX)
                 self.alpha = CELL_STATE_INERT_ALPHA_MIN
                 self.stats.addCellStateChange("inert")
+                self.memory.append((self.turnCount, "Became Inert", 0))
             else:
                 self.stats.addCellStateStable()
 
@@ -379,29 +411,33 @@ class Cell:
         self.stats.addCellAdult()
         if self.energy < self.fertilityEnergyMin:
             self.stats.addCellBabyFailed("Exhausted")
+            self.memory.append((self.turnCount, "Too lazy to fuck", 0))
             return False
         # reproducing a cell inside an organism (will be done in organism)
         #if self.organism is not None:
         #    return False
         # Generate a baby cell if enough energy
-        if (random.random()*100) < self.fertilityRate or self.attractiveness > 90:
+        if (random.random()*100) < self.fertilityRate or (self.attractiveness > ((CellAttractivenessTopRecord/10)*9)):
             if self.state is "inert": # inert cells 'birth' enrichment onto environment
                 enrichInert = min(self.age, self.mass)
                 self.mass -= enrichInert
-                self.environment.addInertAt(self.x, self.y, enrichInert * .2) # 20% at self, 10% at each adjacent
-                self.environment.addInertAt(self.x + 1, self.y, enrichInert * .1) # Top
-                self.environment.addInertAt(self.x, self.y + 1, enrichInert * .1) # Right
-                self.environment.addInertAt(self.x - 1, self.y, enrichInert * .1) # Bottom
-                self.environment.addInertAt(self.x, self.y - 1, enrichInert * .1) # Left
+                self.environment.addInertAt(self.x, self.y, (enrichInert * 0.2)) # 20% at self, 10% at each adjacent
+                self.environment.addInertAt(self.x + 1, self.y, (enrichInert * 0.1)) # Top
+                self.environment.addInertAt(self.x, self.y + 1, (enrichInert * 0.1)) # Right
+                self.environment.addInertAt(self.x - 1, self.y, (enrichInert * 0.1)) # Bottom
+                self.environment.addInertAt(self.x, self.y - 1, (enrichInert * 0.1)) # Left
                 self.stats.addCellDisintegration()
+                self.memory.append((self.turnCount, "Enriched the earth", (enrichInert * 0.6)))
                 if self.mass <= 0:
                     # disappear from board
                     self.environment.removeCellFromGrid(self)
                     self.stats.addCellDisintegrationDeath()
+                    self.memory.append((self.turnCount, "Oop bye", 0))
             else: 
                 x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
                 if self.environment.canAddCellAt(x, y):  # Empty spot
                     self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
+                    self.topEnergy = (self.topEnergy/CELL_REPRODUCTION_SUCCESS_COST)
                     baby_cell = Cell(x, y, self.stats, self.environment, organismCheck=None)
                     baby_cell.growthRate = max(0.5, min(2.0, self.growthRate + random.uniform(CELL_BABY_MUTATION_GROWTH_MIN, CELL_BABY_MUTATION_GROWTH_MAX)))
                     baby_cell.resilience = max(0.5, min(2.0, self.resilience + random.uniform(CELL_BABY_MUTATION_RESILIENCE_MIN, CELL_BABY_MUTATION_RESILIENCE_MAX)))
@@ -410,26 +446,42 @@ class Cell:
                     baby_cell.role = random.choice(CELL_ROLES)
                     self.environment.setCellAt(x, y, baby_cell)
                     # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
-                    self.stats.addCellBaby()
-                    return True
+                    if self.attractiveness < ((CellAttractivenessTopRecord/10)*9):
+                        self.memory.append((self.turnCount, "Wait, une bebe?! Where did this thing come from!?", {self.fertilityRate}))
+                        self.stats.addCellBaby("fertility")
+                        return True
+                    else:
+                        self.memory.append((self.turnCount, "Can't believe i'm finally a parent!", {self.attractiveness}))
+                        self.stats.addCellBaby("attractiveness")
+                        return True
                 else:
                     self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
                     # print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
                     self.stats.addCellBabyFailed("Overpopulation")
+                    self.memory.append((self.turnCount, "Didn't have room for even 1 bebe :(", 0))
                     return False
             return False
 
     def decay(self):
         if not self.alive:
             return
-        self.energy -= random.uniform(0.95, 1.05) * (CELL_DECAY_ENERGY_MULTIPLIER / (((self.resilience + self.age) * self.speed)/100))  # Energy loss increases with speed
+        self.energy -= random.uniform(0.95, 1.05) * (CELL_DECAY_ENERGY_MULTIPLIER * (((self.age - self.resilience) * self.speed)/100))  # Energy loss increases with speed
         self.age += CELL_DECAY_AGE_PER_TURN
         self.growthRate -= random.uniform(0.95, 1.05) * self.growthDecayRate
         self.lifeExpectancy = random.uniform(0.95, 1.05) * random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)
         self.attractiveness = random.uniform(0.95, 1.05) * ((self.energy*(CELL_ATTRACTIVENESS_NORM_ENERGY))+(self.age*(CELL_ATTRACTIVENESS_NORM_AGE))+(self.growthRate*CELL_ATTRACTIVENESS_NORM_GROWTH)+(self.resilience*CELL_ATTRACTIVENESS_NORM_RESILIENCE)+(self.perceptionStrength*CELL_ATTRACTIVENESS_NORM_STRENGTH)+(self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+(self.lightEmission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION))/7
+        if self.attractiveness > CellAttractivenessTopRecord:
+            CellAttractivenessTopRecord = self.attractiveness
+        if self.energy >= self.topEnergy * (random.uniform(0.9, 1.1) * CELL_DECAY_TOP_ENERGY_EXCESS):
+            self.topEnergyDecay = self.topEnergy - ((self.topEnergy/10) * CELL_DECAY_TOP_ENERGY_MULTIPLIER)
+            self.topEnergy = self.topEnergyDecay
+            self.memory.append((self.turnCount, "Fuck, being this cool is too hard, I lost energy", [self.topEnergyDecay]))
+            self.topEnergyDecay = 0
         #print(f"Rated {self.attractiveness}% hot")
+        self.memory.append((self.turnCount, "I'm really rated this hot!?", {self.attractiveness}))
         if (self.energy <= 0) or (self.age > self.lifeExpectancy):  # Death by starvation or old age
             self.alive = False
+            self.memory.append((self.turnCount, "I either starved, or got old - can't tell.", 0))
             print(f"Died from state {self.state} Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn")
             if self.age < self.lifeExpectancy:
                 self.stats.addCellDeath(CELL_DEATH_REASON_STARVATION)
@@ -446,14 +498,36 @@ class Cell:
 
     def needTurn(self, turn):
         return self.turnCount < turn
+    
+    def summarizeMemory(self):
+        if self.alive == True:
+            self.previousAlive = True
+            return
+        if self.alive == False and self.previousAlive == True:
+            self.previousAlive = False
+            summary = f"Cell {self.id} Summary (Total Memories: {len(self.memory)}):\n"
+            memoryCounts = {}
+
+            for (self.turnCount), memoryType, _ in self.memory:
+                if memoryType not in memoryCounts:
+                    memoryCounts[memoryType] = 0
+                memoryCounts[memoryType] += 1
+
+            for memoryType, count in memoryCounts.items():
+                summary += f"- {memoryType}: {count}\n"
+            
+            print(f"{summary}")
+
 
     def runLoop(self, turn):
         self.turnCount = turn
         self.move()
         self.absorbNutrients()
+        if self.energy > self.topEnergy:
+            self.topEnergy = self.energy
         self.phaseTransition()
         self.reproduce()
         self.decay()
         self.waifuSignal()
-        if self.energy > self.topEnergy:
-            self.topEnergy = self.energy
+        self.summarizeMemory()
+
