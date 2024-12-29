@@ -345,7 +345,8 @@ class Cell:
                     cellDisinntegrationCount += 1
                 else:
                     cellDisintegrationCount += 1
-            else: x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
+            else: 
+                x, y = (self.x + random.choice([-1, 1])) % self.environment.grid.shape[0], (self.y + random.choice([-1, 1])) % self.environment.grid.shape[1]
                 if self.environment.canAddCellAt(x, y):  # Empty spot
                     self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
                     baby_cell = Cell(x, y, self.stats, organism=None)
