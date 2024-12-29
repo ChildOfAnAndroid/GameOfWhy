@@ -36,9 +36,9 @@ class Visualisation:
                     if cell.alive:
                         stats.addCellAlive()
                         try:
-                            ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.get_color(top_energy), alpha=cell.get_alpha()))
+                            ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor(top_energy), alpha=cell.get_alpha()))
                         except Exception as e:
-                            print(f"Color is {cell.get_color(top_energy)} (current energy {cell.energy} top_energy {top_energy}), Alpha is {cell.get_alpha()} state: {cell.state} alive: {cell.alive} {cell} ({e})")
+                            print(f"Color is {cell.get_color(top_energy)} (current energy {cell.energy} top_energy {top_energy}), Alpha is {cell.getCellAlpha()} state: {cell.state} alive: {cell.alive} {cell} ({e})")
     """
     for organism in organisms:
         if organism.is_alive():

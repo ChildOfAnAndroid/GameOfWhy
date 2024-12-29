@@ -162,7 +162,7 @@ class Cell:
                 else:
                     print(f"Failed moving {self.id} onto itself")
         
-    def get_color(self, top_energy):
+    def getCellColor(self, top_energy):
         if self.organism:
             if self.organism.name: # sentient = random color picked once
                 if not hasattr(self.organism, "color"):
@@ -175,7 +175,7 @@ class Cell:
         else:
             return hsv_to_rgb((self.hue, min(1, max(0.5, self.energy / (top_energy))), min(1, max(0.8, self.energy / top_energy))))
 
-    def get_alpha(self):
+    def getCellalpha(self):
         if cell.state == "gas":
             return 0.3
         return 1
