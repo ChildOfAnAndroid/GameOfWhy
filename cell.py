@@ -5,7 +5,12 @@ from matplotlib.colors import hsv_to_rgb
 import random
 from config import *
 
+cellElderCount = 0
+cellYouthCount = 0
+cellAdultCount = 0
+
 class Cell:
+
     def __init__(self, x, y, stats, environment, organismCheck=None):
         self.id = stats.getCellNextID() # Cell ID
         self.alive = True
@@ -32,6 +37,10 @@ class Cell:
             self.lightAbsorption = random.uniform(CELL_PLASMA_LIGHT_ABSORPTION_MIN, CELL_PLASMA_LIGHT_ABSORPTION_MAX)  # Ability to absorb light as energy
             self.mutationRate = random.uniform(CELL_PLASMA_MUTATION_RATE_MIN, CELL_PLASMA_MUTATION_RATE_MAX)  # Probability of mutation during reproduction
             self.lifeExpectancy = self.resilience * random.uniform(CELL_PLASMA_DEATH_AGE_MIN, CELL_PLASMA_DEATH_AGE_MAX)
+            self.fertilityRate = 1 = random.uniform(CELL_PLASMA_FERTILITY_RATE_MIN, CELL_PLASMA_FERTILITY_RATE_MAX)
+            self.fertilityAgeMin = 10 = random.uniform(CELL_PLASMA_FERTILITY_START_AGE_MIN, CELL_PLASMA_FERTILITY_START_AGE_MAX)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_PLASMA_FERTILITY_END_AGE_MIN, CELL_PLASMA_FERTIILITY_END_AGE_MIN)
+            self.fertilityEnergyMin = 200 = random.uniform(CELL_PLASMA_FERTILITY_ENERGY_MIN, CELL_PLASMA_FERTILITY_ENERGY_MAX)
         elif self.state == "gas":
             self.growthRate = random.uniform(CELL_GAS_GROWTH_RATE_MIN, CELL_GAS_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_GAS_RESILIENCE_MIN, CELL_GAS_RESILIENCE_MAX)
@@ -293,13 +302,19 @@ class Cell:
             self.alpha = CELL_STATE_INERT_ALPHA_MIN
 
     def reproduce(self, grid):
-        if not self.alive or (self.age > CELL_FERTILITY_AGE_MAX) or (self.age < CELL_FERTILITY_AGE_MIN):
+        if not self.alive:
+            return False
+        if not (self.age > self.fertilityAgeMax):
+            cellElderCount += 1
+            return False
+        if not  (self.age < self.fertilityAgeMin):
+            cellYouthCount += 1
             return False
         # reproducing a cell inside an organism (will be done in organism)
         #if self.organism is not None:
-        #    return
+        #    return False
         # Generate a baby cell if enough energy
-        if random.random() < CELL_FERTILITY_CHANCE_MIN or self.attractiveness > 9 or self.energy > CELL_FERTILITY_ENERGY_MIN:
+        if random.random() < self.fertility or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
             x, y = (self.x + random.choice([-1, 1])) % grid.shape[0], (self.y + random.choice([-1, 1])) % grid.shape[1]
             if grid[x, y] == 0 or grid[x, y] is None:  # Empty spot
                 self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
@@ -310,11 +325,13 @@ class Cell:
                 baby_cell.speed = max(0.5, min(2.0, self.speed + random.uniform(CELL_BABY_MUTATION_SPEED_MIN, CELL_BABY_MUTATION_SPEED_MAX)))
                 baby_cell.role = random.choice(CELL_ROLES)
                 grid[x, y] = baby_cell
+                cellAdultCount += 1
                 # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
                 self.stats.addCellBaby()
                 return True
             else:
                 self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
+                cellAdultCount += 1
                 # print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
                 self.stats.addCellBabyFailed()
                 return False
