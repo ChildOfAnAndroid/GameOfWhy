@@ -363,6 +363,7 @@ class Cell:
             return False
         if self.energy < self.fertilityEnergyMin:
             self.stats.addCellAdult()
+            self.stats.addCellBabyFailed(Exhausted)
             return False
         self.stats.addCellAdult()
         # reproducing a cell inside an organism (will be done in organism)
@@ -400,7 +401,7 @@ class Cell:
                 else:
                     self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
                     # print("Tried to UNEBEBEBEBEBEBEBEE BUT NO SPACE LEFT")
-                    self.stats.addCellBabyFailed()
+                    self.stats.addCellBabyFailed(Overpopulation)
                     return False
             return False
 

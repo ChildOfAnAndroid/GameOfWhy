@@ -108,9 +108,16 @@ Stable Cell States: {self.cellStateStableThisTurn}
         self.cellBabyCounter += 1
         self.cellBabysThisTurn += 1
     
-    def addCellBabyFailed(self):
-        self.cellBabysFailedCounter += 1
-        self.cellBabysFailedThisTurn += 1
+    def addCellBabyFailed(self, reason):
+        if reason in self.cellBabysFailedCounter:
+            self.cellBabysFailedCounter[reason] += 1
+        else:
+            self.cellBabysFailedCounter[reason] = 1
+
+        if reason in self.cellBabysFailedThisTurn:
+            self.cellBabysFailedThisTurn[reason] += 1
+        else:
+            self.cellBabysFailedThisTurn[reason] = 1
     
     def addCellDeath(self, reason):
         if reason in self.cellDeathCounter:
