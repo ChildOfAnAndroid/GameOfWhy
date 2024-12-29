@@ -98,6 +98,10 @@ CELL_BABY_MUTATION_PERCEPTION_MAX = 0.1
 CELL_DEATH_AGE_MIN = 80
 CELL_DEATH_AGE_MAX = 500
 
+CELL_DEATH_REASON_SQUISH = "squish"
+CELL_DEATH_REASON_AGE = "age"
+CELL_DEATH_REASON_STARVATION = "starvation"
+
 CELL_DEATH_RELEASE_LIGHT = 0.5
 
 CELL_DEATH_RELEASE_INERT = 300 # maybe make equivalent to the cells final weight, eventually
@@ -128,6 +132,22 @@ INERT_GRID_TRANSPARENCY = 0.8
 ATTRACTIVENESS_GRID_TRANSPARENCY = 0.6
 LIGHT_GRID_TRANSPARENCY = 0.6
 
-CELL_DEATH_REASON_SQUISH = "squish"
-CELL_DEATH_REASON_AGE = "age"
-CELL_DEATH_REASON_STARVATION = "starvation"
+# Define RGBA colors for the gradient: transparent -> green -> brown
+colors = [
+    (0, 0, 0, 0),      # transparent
+    (0.1, 0.3, 0.1, 1),  # green
+    (0.4, 0.3, 0.2, 1),  # brown
+    (0.2, 0.2, 0.2, 1)   # grey
+]
+
+# Create the colormap
+terrain_colormap = LinearSegmentedColormap.from_list("terrain_colormap", colors)
+
+colors = [
+        (0.0, (1, 1, 1, 0)),
+        (0.3, (0.5, 0.1, 0.5, 0.2)),
+        (0.7, (1.0, 0.5, 0.0, 0.6)),
+        (1.0, (1.0, 1.0, 0.0, 0.8)),
+    ]
+    
+purple_yellow_colormap = LinearSegmentedColormap.from_list("purple_yellow", colors)
