@@ -259,14 +259,14 @@ class Cell:
 
     def emitLight(self, lightGrid):
         if self.state == "plasma": # Plasma cells consistently emit high light
-            self.light_emission = 5
+            self.lightEmission = 5
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         elif random.random() < 0.01 and self.energy > 120: # Non-plasma cells have a random chance to emit light
-            self.light_emission = 1
+            self.lightEmission = 1
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         else:
-            self.light_emission = 0
-        self.environment.addLightAt(self.x, self.y, self.light_emission)
+            self.lightEmission = 0
+        self.environment.addLightAt(self.x, self.y, self.lightEmission)
             
     def waifuSignal(self, waifuGrid):
         if self.alive:
