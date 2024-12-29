@@ -175,11 +175,6 @@ class Cell:
         else:
             return hsv_to_rgb((self.hue, min(1, max(0.5, self.energy / (top_energy))), min(1, max(0.8, self.energy / top_energy))))
 
-    def getCellalpha(self):
-        if cell.state == "gas":
-            return 0.3
-        return 1
-
     def absorb_nutrients(self, lightGrid):
         if self.alive:
             nutrients = lightGrid[self.x, self.y]
@@ -224,18 +219,23 @@ class Cell:
         if self.energy > CELL_STATE_PLASMA_ENERGY:
             self.state = "plasma"
             self.hue = random.uniform(CELL_STATE_PLASMA_COLOR_MIN, CELL_STATE_PLASMA_COLOR_MAX)
+            self.alpha = random.uniform(CELL_STATE_PLASMA_ALPHA_MIN, CELL_STATE_PLASMA_ALPHA_MAX)
         elif CELL_STATE_GAS_ENERGY < self.energy <= CELL_STATE_PLASMA_ENERGY:
             self.state = "gas"
             self.hue = random.uniform(CELL_STATE_GAS_COLOR_MIN, CELL_STATE_GAS_COLOR_MAX)
+            self.alpha = random.uniform(CELL_STATE_GAS_ALPHA_MIN, CELL_STATE_GAS_ALPHA_MAX)
         elif CELL_STATE_LIQUID_ENERGY < self.energy <= CELL_STATE_GAS_ENERGY:
             self.state = "liquid"
             self.hue = random.uniform(CELL_STATE_LIQUID_COLOR_MIN, CELL_STATE_LIQUID_COLOR_MAX)
+            self.alpha = random.uniform(CELL_STATE_LIQUID_ALPHA_MIN, CELL_STATE_LIQUID_ALPHA_MAX)
         elif CELL_STATE_SOLID_ENERGY < self.energy <= CELL_STATE_LIQUID_ENERGY:
             self.state = "solid"
             self.hue = random.uniform(CELL_STATE_SOLID_COLOR_MIN, CELL_STATE_SOLID_COLOR_MAX)
+            self.alpha = CELL_STATE_SOLID_ALPHA_MIN
         elif CELL_STATE_INERT_ENERGY < self.energy <= CELL_STATE_SOLID_ENERGY:
             self.state = "inert"
             self.hue = self.hue if hasattr(self, "hue") else random.uniform(CELL_STATE_INERT_COLOR_MIN, CELL_STATE_INERT_COLOR_MAX)
+            self.alpha = CELL_STATE_INERT_ALPHA_MIN
 
     def reproduce(self, grid, lightGrid):
         if not self.alive or (self.age > CELL_FERTILITY_AGE_MAX) or (self.age < CELL_FERTILITY_AGE_MIN):

@@ -10,3 +10,22 @@ from stats import *
 from visualisation import *
 
 class Main:
+"""
+
+pre game:
+initialise environment
+initialise cells
+
+
+each turn:
+revisualise
+move cells
+refresh environment
+
+end of turn:
+print results
+
+end of game:
+print results
+
+"""
