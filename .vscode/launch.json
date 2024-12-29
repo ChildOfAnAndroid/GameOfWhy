@@ -33,4 +33,13 @@ etcetcetcEnergyMin:
     if unbebe part
     else un-bebe part
 
+
+if self.state != "plasma":
+    cellStateNew += 1
+    cellStatePlasmaNew += 1
+else:
+    cellStateStable += 1
+    HUE
+    ALPHA etc
+return (LINES 304-328 CELL)
 """

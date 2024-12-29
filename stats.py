@@ -21,6 +21,12 @@ class Stats:
         self.cellForcedSpawnCounter = 0
         self.cellFailedForcedSpawnCounter = 0
 
+        # state statistits
+        self.cellStateChange = {}
+        self.cellStateChangeThisTurn = {}
+        self.cellStateStable = 0
+        self.cellStateStableThisTurn = 0
+
         # Movement statistics
         self.cellMovedCounter = 0
         self.cellPushedCounter = 0
@@ -48,6 +54,8 @@ class Stats:
         self.cellYouthCount = 0
         self.cellElderlyCount = 0
         self.cellAdultCount = 0
+        self.cellStateStableThisTurn = 0
+        self.cellStateChangeThisTurn = {}
 
     def endTurn(self):
         print(f"Turn Summary: There are currently {self.cellAliveCount} living cells. There were {self.cellBabysThisTurn} babies born, {self.getDeathsThisTurn()} cells died, and {self.cellDeathEscapesThisTurn} cells evaded death! ")
@@ -75,6 +83,12 @@ Total Cell Skipped Babies: {self.cellBabysFailedCounter} (manual {self.cellFaile
 Total Cell Movements: {self.cellMovedCounter}
 Total Cell Pushed: {self.cellPushedCounter}
 
+# State Statistics
+Total State Changes: {self.getCellStateChangeTotal()}
+By State:
+{"\n".join([f"{x}: {self.cellStateChange[x]}" for x in self.cellStateChange])}
+Total Stable Turns: {self.cellStateStable}
+
 # Turn Statistics
 Cell Babies: {self.cellBabysThisTurn}
 Cell Skipped Babies: {self.cellBabysFailedThisTurn}
@@ -84,6 +98,10 @@ Cell Escapes: {self.cellDeathEscapesThisTurn}
 Cell Movements: {self.cellMovedThisTurn}
 Cell Pushes: {self.cellPushedThisTurn}
 Cells Alive: {self.cellAliveCount} (Youth: {self.cellYouthCount}, Adults: {self.cellAdultCount}, Elderly: {self.cellElderlyCount})
+Switched Cell States: {self.getCellStateChangesThisTurn()} 
+By State:
+{"\n".join([f"{x}: {self.cellStateChangeThisTurn[x]}" for x in self.cellStateChangeThisTurn])}
+Stable Cell States: {self.cellStateStableThisTurn}
 """
 
     def addCellBaby(self):
@@ -152,8 +170,35 @@ Cells Alive: {self.cellAliveCount} (Youth: {self.cellYouthCount}, Adults: {self.
         for reason in self.cellDeathsThisTurn:
             sum += self.cellDeathsThisTurn[reason]
         return sum
+    
+    def getCellStateChangeTotal(self):
+        total = 0
+        for reason in self.cellStateChange:
+            total += self.cellStateChange[reason]
+        return total
+
+    def getCellStateChangesThisTurn(self):
+        sum = 0
+        for reason in self.cellStateChangeThisTurn:
+            sum += self.cellStateChangeThisTurn[reason]
+        return sum
 
     def getCellNextID(self):
         ret = self.cellCounter
         self.cellCounter += 1
         return ret
+    
+    def addCellStateStable(self):
+        self.cellStateStable += 1
+        self.cellStateStableThisTurn += 1
+    
+    def addCellStateChange(self, newState):
+        if newState in self.cellStateChange:
+            self.cellStateChange[newState] += 1
+        else:
+            self.cellStateChange[newState] = 1
+        
+        if newState in self.cellStateChangeThisTurn:
+            self.cellStateChangeThisTurn[newState] += 1
+        else:
+            self.cellStateChangeThisTurn[newState] = 1
