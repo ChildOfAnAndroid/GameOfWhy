@@ -269,7 +269,7 @@ class Cell:
         if self.state == "plasma": # Plasma cells consistently emit high light
             self.lightEmission = 5
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
-        elif random.random() < 0.01 and self.energy > self.fertilityRate: # Non-plasma cells have a random chance to emit light
+        elif random.random() < 0.01 and self.energy > self.fertilityEnergyMin: # Non-plasma cells have a random chance to emit light
             self.lightEmission = 1
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         else:
@@ -361,12 +361,15 @@ class Cell:
         if self.age < self.fertilityAgeMin:
             self.stats.addCellYouth()
             return False
+        if self.energy < self.fertilityEnergyMin:
+            self.stats.addCellAdult()
+            return False
         self.stats.addCellAdult()
         # reproducing a cell inside an organism (will be done in organism)
         #if self.organism is not None:
         #    return False
         # Generate a baby cell if enough energy
-        if random.random() < self.fertilityRate or self.attractiveness > 90 or self.energy > self.fertilityEnergyMin:
+        if (random.random()*100) < self.fertilityRate or self.attractiveness > 90:
             if self.state is "inert": # inert cells 'birth' enrichment onto environment
                 enrichInert = min(self.age, self.mass)
                 self.mass -= enrichInert
