@@ -36,8 +36,8 @@ class Main:
     def run(self):
         for turn in range(NUM_STEPS):
             self.stats.beginTurn()
-            self.visualisation.runLoop(turn)
             self.environments.runLoop(turn)
+            self.visualisation.runLoop(turn)
             self.automaton.runLoop(turn)
             self.stats.endTurn()
         

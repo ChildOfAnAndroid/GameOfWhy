@@ -13,12 +13,12 @@ class Environment:
     def __init__(self, stats):
         self.stats = stats
         self.grid = np.zeros((GRID_SIZE, GRID_SIZE), dtype=object)  # Allow tracking cell states
-        self.lightGrid = np.random.random((GRID_SIZE, GRID_SIZE)) * 5  # Light levels
+        self.lightGrid = np.ones((GRID_SIZE, GRID_SIZE)) * 10  # Light levels
         self.waifuGrid = np.zeros((GRID_SIZE, GRID_SIZE))
         self.inertGrid = np.zeros((GRID_SIZE, GRID_SIZE)) # Fully decayed inerts
         self.signalGrid = np.zeros((GRID_SIZE, GRID_SIZE))  # Shared perception map
 
-    def updateSignalCache(self):
+    def updateSignalGrid(self):
         self.signalGrid.fill(0)
         # Combine light, waifu, and grid contents
         for x in range(self.grid.shape[0]):
@@ -26,7 +26,7 @@ class Environment:
                 cell = self.grid[x, y]
 
                 # Base signal from light and waifu grids
-                baseSignal = (self.lightGrid[x, y] * LIGHT_GRID_IMPORTANCE) + (self.waifuGrid[x, y] + ATTRACTIVENESS_GRID_IMPORTANCE) + (self.inertGrid[x, y] + INERT_GRID_IMPORTANCE) + (self.grid[x, y] + MAIN_GRID_IMPORTANCE)
+                baseSignal = (self.lightGrid[x, y] * LIGHT_GRID_IMPORTANCE) + (self.waifuGrid[x, y] * ATTRACTIVENESS_GRID_IMPORTANCE) + (self.inertGrid[x, y] * INERT_GRID_IMPORTANCE)
 
                 if cell is None or cell == 0 or cell == "gas":
                     # Empty or passable space, keep base signal
@@ -34,7 +34,7 @@ class Environment:
                 elif isinstance(cell, Cell):
                     # Occupied by a cell: factor in cell attributes
                     cellSignal = baseSignal
-                    cellSignal -= cell.resistance * 0.1
+                    cellSignal -= cell.resilience * 0.1
                     if cell.state == "liquid":
                         cellSignal += random.uniform(0.5,2)
                     cellSignal += cell.lightEmission * 1.2
@@ -73,6 +73,7 @@ class Environment:
                     grid[x, y] = None
     
     def runLoop(self, turn):
+        self.updateSignalGrid()
         self.enrich_environment()
         if turn % 100 == 0 and False: # disabled for now
             self.stir_environment()

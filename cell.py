@@ -51,6 +51,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_PLASMA_FERTILITY_END_AGE_MIN, CELL_PLASMA_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_PLASMA_FERTILITY_ENERGY_MIN, CELL_PLASMA_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_PLASMA_MASS_MIN, CELL_PLASMA_MASS_MAX)
+            self.height = random.uniform(CELL_PLASMA_HEIGHT_MIN, CELL_PLASMA_HEIGHT_MAX)
         elif self.state == "gas":
             self.growthRate = random.uniform(CELL_GAS_GROWTH_RATE_MIN, CELL_GAS_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_GAS_RESILIENCE_MIN, CELL_GAS_RESILIENCE_MAX)
@@ -67,6 +68,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_GAS_FERTILITY_END_AGE_MIN, CELL_GAS_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_GAS_FERTILITY_ENERGY_MIN, CELL_GAS_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_GAS_MASS_MIN, CELL_GAS_MASS_MAX)
+            self.height = random.uniform(CELL_GAS_HEIGHT_MIN, CELL_GAS_HEIGHT_MAX)
         elif self.state == "liquid":
             self.growthRate = random.uniform(CELL_LIQUID_GROWTH_RATE_MIN, CELL_LIQUID_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_LIQUID_RESILIENCE_MIN, CELL_LIQUID_RESILIENCE_MAX)
@@ -83,6 +85,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_LIQUID_FERTILITY_END_AGE_MIN, CELL_LIQUID_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_LIQUID_FERTILITY_ENERGY_MIN, CELL_LIQUID_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_LIQUID_MASS_MIN, CELL_LIQUID_MASS_MAX)
+            self.height = random.uniform(CELL_LIQUID_HEIGHT_MIN, CELL_LIQUID_HEIGHT_MAX)
         elif self.state == "mesophase":
             self.growthRate = random.uniform(CELL_MESOPHASE_GROWTH_RATE_MIN, CELL_MESOPHASE_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_MESOPHASE_RESILIENCE_MIN, CELL_MESOPHASE_RESILIENCE_MAX)
@@ -99,6 +102,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_MESOPHASE_FERTILITY_END_AGE_MIN, CELL_MESOPHASE_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_MESOPHASE_FERTILITY_ENERGY_MIN, CELL_MESOPHASE_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_MESOPHASE_MASS_MIN, CELL_MESOPHASE_MASS_MAX)
+            self.height = random.uniform(CELL_MESOPHASE_HEIGHT_MIN, CELL_MESOPHASE_HEIGHT_MAX)
         elif self.state == "solid": # CRYSTALLINE
             self.growthRate = random.uniform(CELL_SOLID_GROWTH_RATE_MIN, CELL_SOLID_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_SOLID_RESILIENCE_MIN, CELL_SOLID_RESILIENCE_MAX)
@@ -115,6 +119,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_SOLID_FERTILITY_END_AGE_MIN, CELL_SOLID_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_SOLID_FERTILITY_ENERGY_MIN, CELL_SOLID_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_SOLID_MASS_MIN, CELL_SOLID_MASS_MAX)
+            self.height = random.uniform(CELL_SOLID_HEIGHT_MIN, CELL_SOLID_HEIGHT_MAX)
         elif self.state == "inert":
             self.growthRate = random.uniform(CELL_INERT_GROWTH_RATE_MIN, CELL_INERT_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_INERT_RESILIENCE_MIN, CELL_INERT_RESILIENCE_MAX)
@@ -131,6 +136,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_INERT_FERTILITY_END_AGE_MIN, CELL_INERT_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_INERT_FERTILITY_ENERGY_MIN, CELL_INERT_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_INERT_MASS_MIN, CELL_INERT_MASS_MAX)
+            self.height = random.uniform(CELL_INERT_HEIGHT_MIN, CELL_INERT_HEIGHT_MAX)
         else:
             self.growthRate = random.uniform(CELL_BASE_GROWTH_RATE_MIN, CELL_BASE_GROWTH_RATE_MAX)
             self.resilience = random.uniform(CELL_BASE_RESILIENCE_MIN, CELL_BASE_RESILIENCE_MAX)
@@ -147,6 +153,7 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_BASE_FERTILITY_END_AGE_MIN, CELL_BASE_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_BASE_FERTILITY_ENERGY_MIN, CELL_BASE_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_BASE_MASS_MIN, CELL_BASE_MASS_MAX)
+            self.height = random.uniform(CELL_BASE_HEIGHT_MIN, CELL_BASE_HEIGHT_MAX)
     
     def moveOrSquish(self, moving, direction):
         dx, dy = direction
@@ -154,6 +161,7 @@ class Cell:
         new_y = (self.y + dy) % self.environment.grid.shape[1]
         # Use signalGrid for perception-based movement
         signal_at_target = self.environment.signalGrid[new_x, new_y]
+        print(f"moveOrSquish called by Cell {self.id} targeting ({new_x}, {new_y}), signal: {signal_at_target}")  # Debug
 
         # Found an empty space
         if self.environment.canAddCellAt(new_x, new_y):
@@ -171,7 +179,10 @@ class Cell:
         cell = self.environment.getCellAt(new_x, new_y)
         if isinstance(cell, Cell):
             #if cell.speed < (self.speed):
+            print(f"Cell {self.id} collided with Cell {cell.id} at ({new_x}, {new_y})")  # Debug
+
             if cell.resilience > (self.resilience*2):
+                print(f"Cell {self.id} squished by Cell {cell.id}")  # Debug
                 # the target cell get squished
                 ratio = random.uniform(CELL_DEATH_RELEASE_SQUISH_MIN, CELL_DEATH_RELEASE_SQUISH_MAX)
                 squishEnergyTransfer = max(0, self.energy * ratio) # Squish release of energy (norty?!)
@@ -217,44 +228,54 @@ class Cell:
         while blockCounter < maxMoveAttempts:
             bestMove = None
             maxSignal = -1
+            print(f"Cell {self.id} evaluating moves at ({self.x}, {self.y})")  # Debug
+
             for dx, dy in potentialMoves:
-                # print(f"Considering move ({dx},{dy})")
                 new_x = (self.x + dx) % self.environment.grid.shape[0]
                 new_y = (self.y + dy) % self.environment.grid.shape[1]
                 signal = self.environment.signalGrid[new_x, new_y]
                 self.memory.append((self.turnCount, "Considered another direction", ({dx},{dy})))
-                # print(f"env: {lightGrid[new_x, new_y]} wai: {waifuGrid[new_x, new_y]} per: {self.perception_strength}")
+                print(f"  Checking move to ({new_x}, {new_y}), signal: {signal}")  # Debug
                 if signal > maxSignal and self.environment.canAddCellAt(new_x, new_y):
                     # print(f"Best signal")
-                    bestMove = (dx, dy)
+                    bestMove = (abs(dx), abs(dy))
                     maxSignal = signal
             if bestMove:
-                bestMove = (dx, dy)
+                bestMove = (abs(dx), abs(dy))
                 new_x = (self.x + dx) % self.environment.grid.shape[0]
                 new_y = (self.y + dy) % self.environment.grid.shape[1]
-                self.environment.moveCellTo(new_x, new_y, self)
-                self.stats.addCellMove()
-                self.memory.append((self.turnCount, f"Moved to signal {maxSignal}", (new_x, new_y)))
+                print(f"Cell {self.id} moving to ({new_x}, {new_y}) with signal {maxSignal}")  # Debug
+                if self.environment.canAddCellAt(abs(new_x), abs(new_y)):
+                    self.environment.moveCellTo(abs(new_x), abs(new_y), self)
+                    self.stats.addCellMove()
+                    self.memory.append((self.turnCount, f"Moved to signal {maxSignal}", (new_x, new_y)))
             
-            else:
-                blockCounter += 1
-                self.memory.append((self.turnCount, f"You're really gonna block me {blockCounter} time(s)?", (self.x, self.y)))
+            blockCounter += 1
+            print(f"Cell {self.id} blocked. Attempt {blockCounter}/{maxMoveAttempts}")  # Debug
+            self.memory.append((self.turnCount, f"You're really gonna block me {blockCounter} time(s)?", (self.x, self.y)))
 
-            if self.resilience > self.environment.grid[new_x,new_y].resilience:
-                # Current cell resilience sup to target resilience
-                # Try to push the target away
-                # print(f"Squish time")
-                self.environment.grid[new_x,new_y].moveOrSquish(self, (dx, dy))
-                self.memory.append((self.turnCount, "did he die!?", {self.resilience}))
-                self.energy = random.uniform(0.8, 1.1) * self.energy
-                self.memory.append((self.turnCount, "wait, huh?!", {self.energy}))
+            print(f"Grid at ({new_x}, {new_y}): {type(self.environment.grid[new_x, new_y])}, value: {self.environment.grid[new_x, new_y]}")
+            if isinstance(self.environment.grid[new_x, new_y], Cell):
+                target_cell = self.environment.grid[new_x, new_y]
+                if self.resilience > target_cell.resilience:
+                    # Current cell has higher resilience, attempt to push the target away
+                    self.memory.append((self.turnCount, "Pushed weaker cell", (new_x, new_y)))
+                    target_cell.moveOrSquish(self, (dx, dy))
+                    return
+            else:
+                # Target cell is stronger
+                self.memory.append((self.turnCount, "Blocked by stronger cell", (new_x, new_y)))
+        else:
+            # Handle non-cell cases (e.g., empty space, gas, or other markers)
+            self.memory.append((self.turnCount, f"No cell at ({new_x}, {new_y}) to compare resilience, {self.x, self.y}"))
         
-                if self.x != new_x or self.y != new_y:
-                    print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
-                    self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
-                else:
-                    print(f"Failed moving {self.id} onto itself")
-                    self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
+        if self.x != new_x or self.y != new_y:
+            print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
+            self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
+                    
+        else:
+            print(f"Failed moving {self.id} onto itself")
+            self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
         
     def getCellColor(self):
         if self.organism:
@@ -485,18 +506,34 @@ class Cell:
             return
         if self.alive == False and self.previousAlive == True:
             self.previousAlive = False
-            summary = f"Cell {self.id} Summary (Total Memories: {len(self.memory)}):\n"
-            memoryCounts = {}
+            summary = {}
 
-            for (self.turnCount), memoryType, _ in self.memory:
-                if memoryType not in memoryCounts:
-                    memoryCounts[memoryType] = 0
-                memoryCounts[memoryType] += 1
+            for memory_entry in self.memory:
+                if len(memory_entry) == 3:
+                    turn_count, memory_type, details = memory_entry
+                elif len(memory_entry) == 2:
+                    turn_count, memory_type = memory_entry
+                    details = None
+                else:
+                    print(f"Unexpected memory format: {memory_entry}")
+                    continue
 
-            for memoryType, count in memoryCounts.items():
-                summary += f"- {memoryType}: {count}\n"
-            
+                # Aggregate memory by type
+                if memory_type not in summary:
+                    summary[memory_type] = []
+                summary[memory_type].append({
+                    "turn": turn_count,
+                    "details": details})
+
+            # Output the summary
+            print("Memory Summary:")
+            for memory_type, entries in summary.items():
+                print(f"{memory_type}:")
+                for entry in entries:
+                    print(f"  Turn {entry['turn']}: {entry['details']}")
+
             print(f"{summary}")
+            return
 
 
     def runLoop(self, turn):
