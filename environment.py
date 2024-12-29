@@ -85,8 +85,6 @@ class Environment:
         return self.setAttractivenessAt(x, y, self.getAttractivenessAt(x, y) + amount)
     
     def setAttractivenessAt(self, x, y, value):
-        # ENVIRONMENT_ATTRACTIVENESS_CLIP_MAX = 100
-        # ENVIRONMENT_ATTRACTIVENESS_CLIP_MIN = 0
         self.waifuGrid = min(ENVIRONMENT_ATTRACTIVENESS_CLIP_MAX, max(ENVIRONMENT_ATTRACTIVENESS_CLIP_MIN, value))
         return self.waifuGrid[x, y] > 0
     

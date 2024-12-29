@@ -40,10 +40,6 @@ class Main:
             self.environments.runLoop(turn)
             self.automaton.runLoop(turn)
             self.stats.endTurn()
-
-            # Early exit condition: nothing is alive anymore
-            if not self.environments.isAlive():
-                print("All cells have become inert. You may want to... leave now.")
         
         self.stats.endRun()
         self.visualisation.endRun(NUM_STEPS)

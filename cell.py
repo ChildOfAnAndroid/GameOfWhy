@@ -14,7 +14,7 @@ class Cell:
         self.age = 0  # cell age (in turns)
         self.organism = organismCheck  # Tracks which organism this cell belongs to
         self.stats = stats
-        self.attractiveness = CELL_BASE_ATTRACTIVENESS_MIN
+        self.attrctiveness = CELL_BASE_ATTRACTIVENESS_MIN
         self.turnCount = 0 # turn checker
         self.x = x # position x
         self.y = y # position y
@@ -242,7 +242,7 @@ class Cell:
             
     def waifuSignal(self, waifuGrid):
         if self.alive:
-            self.environment.addAttractivenessAt(self.x, self.y, )
+            self.environment.addAttractivenessAt(self.x, self.y, self.attractiveness)
             # waifuGrid[self.x, self.y] = min(waifuGrid[self.x, self.y] + self.attractiveness, 100)
             vibes = self.environment.getAttractivenessAt(self.x, self.y) # waifuGrid[self.x, self.y]
             self.attractiveness += vibes * self.growth_rate * 0.5
