@@ -335,7 +335,7 @@ class Cell:
         #    return False
         # Generate a baby cell if enough energy
         if random.random() < self.fertilityRate or self.attractiveness > 9 or self.energy > self.fertilityEnergyMin:
-            if self.state is "inert":
+            if self.state is "inert": # inert cells 'birth' enrichment onto environment
                 self.energy -= (self.age/self.energy)
                 if self.energy <= 0:
                     self.alive = False
