@@ -22,7 +22,7 @@ class Environment:
         # Brighten some random areas
         for _ in range(ENVIRONMENT_LIGHT_ENRICHMENT_SOURCE_NUM):  # Number of light sources
             x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
-            self.lightGrid[x, y] = min(self.lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT, ENVIRONMENT_LIGHT_CLIP_MAX)  # Cap at max brightness
+            self.lightGrid[x, y] = min((self.lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT), ENVIRONMENT_LIGHT_CLIP_MAX)  # Cap at max brightness
         self.lightGrid -= LIGHT_GRID_DECAY_RATE
         self.lightGrid = np.clip(self.lightGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
         self.waifuGrid -= ATTRACTIVENESS_GRID_DECAY_RATE

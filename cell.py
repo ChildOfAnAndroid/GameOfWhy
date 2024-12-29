@@ -361,11 +361,10 @@ class Cell:
         if self.age < self.fertilityAgeMin:
             self.stats.addCellYouth()
             return False
-        if self.energy < self.fertilityEnergyMin:
-            self.stats.addCellAdult()
-            self.stats.addCellBabyFailed("Too Tired")
-            return False
         self.stats.addCellAdult()
+        if self.energy < self.fertilityEnergyMin:
+            self.stats.addCellBabyFailed("Exhausted")
+            return False
         # reproducing a cell inside an organism (will be done in organism)
         #if self.organism is not None:
         #    return False

@@ -17,7 +17,7 @@ class Stats:
 
         # birth statistics
         self.cellBabyCounter = 0
-        self.cellBabysFailedCounter = 0
+        self.cellBabysFailedCounter = {}
         self.cellForcedSpawnCounter = 0
         self.cellFailedForcedSpawnCounter = 0
 
@@ -33,7 +33,7 @@ class Stats:
 
         # TURN STATISTICS
         self.cellBabysThisTurn = 0
-        self.cellBabysFailedThisTurn = 0
+        self.cellBabysFailedThisTurn = {}
         self.cellDeathsThisTurn = {}
         self.cellDeathEscapesThisTurn = 0
         self.cellMovedThisTurn = 0
@@ -47,7 +47,7 @@ class Stats:
         self.cellBabysThisTurn = 0
         self.cellDeathsThisTurn = {}
         self.cellDeathEscapesThisTurn = 0
-        self.cellBabysFailedThisTurn = 0
+        self.cellBabysFailedThisTurn = {}
         self.cellPushedThisTurn = 0
         self.cellMovedThisTurn = 0
         self.cellAliveCount = 0
