@@ -10,7 +10,7 @@ cellYouthCount = 0
 cellAdultCount = 0
 
 class Cell:
-
+    topEnergy = 1
     def __init__(self, x, y, stats, environment, organismCheck=None):
         self.id = stats.getCellNextID() # Cell ID
         self.alive = True
@@ -123,8 +123,8 @@ class Cell:
 
     def moveOrSquish(self, moving, direction):
         dx, dy = direction
-        new_x = (self.x + dx) % grid.shape[0]
-        new_y = (self.y + dy) % grid.shape[1]
+        new_x = (self.x + dx) % self.environment.grid.shape[0]
+        new_y = (self.y + dy) % self.environment.grid.shape[1]
         # Found an empty space
         if self.environment.canAddCellAt(new_x, new_y):
             self.environment.moveCellTo(new_x, new_y, self)
@@ -237,18 +237,18 @@ class Cell:
                 else:
                     print(f"Failed moving {self.id} onto itself")
         
-    def getCellColor(self, topEnergy):
+    def getCellColor(self):
         if self.organism:
             if self.organism.name: # sentient = random color picked once
                 if not hasattr(self.organism, "color"):
-                    self.organism.color = hsv_to_rgb((random.uniform(0, 1), min(1, max(0.8, self.energy / topEnergy)), min(max(0.5, self.energy / top_energy), 1)))
+                    self.organism.color = hsv_to_rgb((random.uniform(0, 1), min(1, max(0.8, self.energy / self.topEnergy)), min(max(0.5, self.energy / top_energy), 1)))
                     return self.organism.color
             else: # dark blue
-                return hsv_to_rgb((0.6, min(1, max(0.8, self.energy / topEnergy)), min(1, max(0.8, self.energy / topEnergy))))
+                return hsv_to_rgb((0.6, min(1, max(0.8, self.energy / self.topEnergy)), min(1, max(0.8, self.energy / self.topEnergy))))
         if not self.alive:
             return hsv_to_rgb((self.hue, 1, 0.2))
         else:
-            return hsv_to_rgb((self.hue, min(1, max(0.5, self.energy / (topEnergy))), min(1, max(0.8, self.energy / topEnergy))))
+            return hsv_to_rgb((self.hue, min(1, max(0.5, self.energy / (self.topEnergy))), min(1, max(0.8, self.energy / self.topEnergy))))
 
     def absorbNutrients(self):
         if self.alive:
@@ -257,7 +257,7 @@ class Cell:
             self.environment.depleteLightAt(self.x, self.y, 0.02)
             # self.environment.lightGrid[self.x, self.y] = max(self.environment.lightGrid[self.x, self.y] - 0.02, 0)  # Deplete nutrients
 
-    def emitLight(self, lightGrid):
+    def emitLight(self):
         if self.state == "plasma": # Plasma cells consistently emit high light
             self.lightEmission = 5
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
@@ -268,7 +268,7 @@ class Cell:
             self.lightEmission = 0
         self.environment.addLightAt(self.x, self.y, self.lightEmission)
             
-    def waifuSignal(self, waifuGrid):
+    def waifuSignal(self):
         if self.alive:
             self.environment.addAttractivenessAt(self.x, self.y, self.attractiveness)
             # waifuGrid[self.x, self.y] = min(waifuGrid[self.x, self.y] + self.attractiveness, 100)
@@ -358,9 +358,9 @@ class Cell:
     def decay(self):
         if not self.alive:
             return
-        self.energy -= (CELL_DECAY_ENERGY_MULTIPLIER / (self.resilience+(self.age/100)) * self.speed)  # Energy loss increases with speed
+        self.energy -= (CELL_DECAY_ENERGY_MULTIPLIER / (self.resilience+(self.age)) * self.speed)  # Energy loss increases with speed
         self.age += CELL_DECAY_AGE_PER_TURN
-        self.attractiveness = ((self.energy*(CELL_ATTRACTIVENESS_NORM_ENERGY))+(self.age*(CELL_ATTRACTIVENESS_NORM_AGE))+(self.growth_rate*CELL_ATTRACTIVENESS_NORM_GROWTH)+(self.resilience*CELL_ATTRACTIVENESS_NORM_RESILIENCE)+(self.perception_strength*CELL_ATTRACTIVENESS_NORM_STRENGTH)+(self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+(self.light_emission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION))/7
+        self.attractiveness = ((self.energy*(CELL_ATTRACTIVENESS_NORM_ENERGY))+(self.age*(CELL_ATTRACTIVENESS_NORM_AGE))+(self.growthRate*CELL_ATTRACTIVENESS_NORM_GROWTH)+(self.resilience*CELL_ATTRACTIVENESS_NORM_RESILIENCE)+(self.perceptionStrength*CELL_ATTRACTIVENESS_NORM_STRENGTH)+(self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+(self.lightEmission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION))/7
         #print(f"Rated {self.attractiveness}% hot")
         if ((self.energy <= 0) or (self.age > self.lifeExpectancy)):  # Death by starvation or old age
             self.alive = False
@@ -387,5 +387,5 @@ class Cell:
         self.reproduce()
         self.decay()
         self.waifuSignal()
-        if self.energy > VISUALISATION_BASE_ENERGY_TOP_RECORD:
-            VISUALISATION_BASE_ENERGY_TOP_RECORD = self.energy
+        if self.energy > self.topEnergy:
+            self.topEnergy = self.energy
