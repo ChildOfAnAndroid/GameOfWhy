@@ -10,3 +10,13 @@
         }
     ]
 }
+
+"""         elif self.state == "mesophase"
+self.growthRate = random.uniform(CELL_MESOPHASE_GROWTH_RATE_MIN, CELL_MESOPHASE_GROWTH_RATE_MAX)
+self.resilience = random.uniform(CELL_MESOPHASE_RESILIENCE_MIN, CELL_MESOPHASE_RESILIENCE_MAX)
+self.perceptionStrength = random.uniform(CELL_MESOPHASE_PERCEPTION_MIN, CELL_MESOPHASE_PERCEPTION_MIN)
+self.speed = random.uniform(CELL_MESOPHASE_SPEED_MIN, CELL_MESOPHASE_SPEED_MAX)
+self.lightEmission = random.uniform(CELL_MESOPHASE_LIGHT_EMISSION_MIN, CELL_MESOPHASE_LIGHT_EMISSION_MIN)
+self.lightAbsorption = random.uniform(CELL_MESOPHASE_LIGHT_ABSORPTION_MIN, CELL_MESOPHASE_LIGHT_ABSORPTION_MAX)
+self.mutationRate = random.uniform(CELL_MESOPHASE_MUTATION_RATE_MIN, CELL_MESOPHASE_MUTATION_RATE_MAX)
+self.lifeExpectancy = self.resilience * random.uniform(CELL_MESOPHASE_DEATH_AGE_MIN, CELL_MESOPHASE_DEATH_AGE_MAX)"""
