@@ -6,34 +6,63 @@ import random
 from config import *
 
 class Cell:
-    def __init__(self, x, y, stats, organism=None):
-        self.id = stats.getCellNextID()
-        self.step_count = 0
-        self.x = x
-        self.y = y
-        self.energy = random.uniform(CELL_BASE_ENERGY_MIN, CELL_BASE_ENERGY_MAX)  # Starting energy level
-        self.age = 0  # Age of the cell
-        self.mutation_rate = CELL_BASE_MUTATION_RATE_MIN  # Probability of mutation during reproduction
+    def __init__(self, x, y, stats, organismCheck=None):
+        self.id = stats.getCellNextID() # Cell ID
         self.alive = True
         self.role = "general"  # Role of the cell: general, structural, sensory, reproductive
-        self.growth_rate = random.uniform(CELL_BASE_GROWTH_RATE_MIN, CELL_BASE_GROWTH_RATE_MAX)  # Genetic trait for energy absorption
-        self.resilience = random.uniform(CELL_BASE_RESILIENCE_MIN, CELL_BASE_RESILIENCE_MAX)  # Resistance to harsh environments
-        self.perception_strength = random.uniform(CELL_BASE_PERCEPTION_MIN, CELL_BASE_PERCEPTION_MIN)  # Communication ability
-        self.speed = random.uniform(CELL_BASE_SPEED_MIN, CELL_BASE_SPEED_MAX)  # Speed of movement
-        self.phase_transition() # Call to set cell state & color
-        self.light_emission = CELL_BASE_LIGHT_EMISSION_MIN  # Amount of light emitted (e.g., by plasma or bioluminescence)
-        self.light_absorption = random.uniform(CELL_BASE_LIGHT_ABSORPTION_MIN, CELL_BASE_LIGHT_ABSORPTION_MAX)  # Ability to absorb light
-        self.attractiveness = CELL_BASE_ATTRACTIVENESS_MIN
-        self.genome = {
-            'growth_rate': self.growth_rate,
-            'resilience': self.resilience,
-            'perception_strength': self.perception_strength,
-            'speed': self.speed,
-            'role': self.role
-        }
-        self.organism = organism  # Tracks which organism this cell belongs to
+        self.age = 0  # cell age (in turns)
+        self.organism = organismCheck  # Tracks which organism this cell belongs to
         self.stats = stats
-        
+        self.attractiveness = CELL_BASE_ATTRACTIVENESS_MIN
+        self.turnCount = 0 # turn checker
+        self.x = x # position x
+        self.y = y # position y
+
+        self.energy = random.uniform(CELL_BASE_ENERGY_MIN, CELL_BASE_ENERGY_MAX)  # Starting energy level
+        self.phaseTransition() # Call to set cell state & color
+
+        # INDIVIDUAL CELL BEHAVIOURS
+        if self.state == "plasma":
+            self.growthRate = random.uniform(CELL_PLASMA_GROWTH_RATE_MIN, CELL_PLASMA_GROWTH_RATE_MAX)  # Energy Absorption
+            self.resilience = random.uniform(CELL_PLASMA_RESILIENCE_MIN, CELL_PLASMA_RESILIENCE_MAX)  # 'toughness'
+            self.perceptionStrength = random.uniform(CELL_PLASMA_PERCEPTION_MIN, CELL_PLASMA_PERCEPTION_MIN)  # Sensory acuity
+            self.speed = random.uniform(CELL_PLASMA_SPEED_MIN, CELL_PLASMA_SPEED_MAX)  # movement speed
+            self.lightEmission = random.uniform(CELL_PLASMA_LIGHT_EMISSION_MIN, CELL_PLASMA_LIGHT_EMISSION_MIN)  # Amount of light emitted (e.g., by plasma or bioluminescence)
+            self.lightAbsorption = random.uniform(CELL_PLASMA_LIGHT_ABSORPTION_MIN, CELL_PLASMA_LIGHT_ABSORPTION_MAX)  # Ability to absorb light as energy
+            self.mutationRate = random.uniform(CELL_PLASMA_MUTATION_RATE_MIN, CELL_PLASMA_MUTATION_RATE_MAX)  # Probability of mutation during reproduction
+        elif self.state == "gas":
+            self.growthRate = random.uniform(CELL_GAS_GROWTH_RATE_MIN, CELL_GAS_GROWTH_RATE_MAX)
+            self.resilience = random.uniform(CELL_GAS_RESILIENCE_MIN, CELL_GAS_RESILIENCE_MAX)
+            self.perceptionStrength = random.uniform(CELL_GAS_PERCEPTION_MIN, CELL_GAS_PERCEPTION_MIN)
+            self.speed = random.uniform(CELL_GAS_SPEED_MIN, CELL_GAS_SPEED_MAX)
+            self.lightEmission = random.uniform(CELL_GAS_LIGHT_EMISSION_MIN, CELL_GAS_LIGHT_EMISSION_MIN)
+            self.lightAbsorption = random.uniform(CELL_GAS_LIGHT_ABSORPTION_MIN, CELL_GAS_LIGHT_ABSORPTION_MAX)
+            self.mutationRate = random.uniform(CELL_GAS_MUTATION_RATE_MIN, CELL_GAS_MUTATION_RATE_MAX)
+        elif self.state == "liquid":
+            self.growthRate = random.uniform(CELL_LIQUID_GROWTH_RATE_MIN, CELL_LIQUID_GROWTH_RATE_MAX)
+            self.resilience = random.uniform(CELL_LIQUID_RESILIENCE_MIN, CELL_LIQUID_RESILIENCE_MAX)
+            self.perceptionStrength = random.uniform(CELL_LIQUID_PERCEPTION_MIN, CELL_LIQUID_PERCEPTION_MIN)
+            self.speed = random.uniform(CELL_LIQUID_SPEED_MIN, CELL_LIQUID_SPEED_MAX)
+            self.lightEmission = random.uniform(CELL_LIQUID_LIGHT_EMISSION_MIN, CELL_LIQUID_LIGHT_EMISSION_MIN)
+            self.lightAbsorption = random.uniform(CELL_LIQUID_LIGHT_ABSORPTION_MIN, CELL_LIQUID_LIGHT_ABSORPTION_MAX)
+            self.mutationRate = random.uniform(CELL_LIQUID_MUTATION_RATE_MIN, CELL_LIQUID_MUTATION_RATE_MAX)
+        elif self.state == "solid":
+            self.growthRate = random.uniform(CELL_SOLID_GROWTH_RATE_MIN, CELL_SOLID_GROWTH_RATE_MAX)
+            self.resilience = random.uniform(CELL_SOLID_RESILIENCE_MIN, CELL_SOLID_RESILIENCE_MAX)
+            self.perceptionStrength = random.uniform(CELL_SOLID_PERCEPTION_MIN, CELL_SOLID_PERCEPTION_MIN)
+            self.speed = random.uniform(CELL_SOLID_SPEED_MIN, CELL_SOLID_SPEED_MAX)
+            self.lightEmission = random.uniform(CELL_SOLID_LIGHT_EMISSION_MIN, CELL_SOLID_LIGHT_EMISSION_MIN)
+            self.lightAbsorption = random.uniform(CELL_SOLID_LIGHT_ABSORPTION_MIN, CELL_SOLID_LIGHT_ABSORPTION_MAX)
+            self.mutationRate = random.uniform(CELL_SOLID_MUTATION_RATE_MIN, CELL_SOLID_MUTATION_RATE_MAX)
+        elif self.state == "gas":
+            self.growthRate = random.uniform(CELL_INERT_GROWTH_RATE_MIN, CELL_INERT_GROWTH_RATE_MAX)
+            self.resilience = random.uniform(CELL_INERT_RESILIENCE_MIN, CELL_INERT_RESILIENCE_MAX)
+            self.perceptionStrength = random.uniform(CELL_INERT_PERCEPTION_MIN, CELL_INERT_PERCEPTION_MIN)
+            self.speed = random.uniform(CELL_INERT_SPEED_MIN, CELL_INERT_SPEED_MAX)
+            self.lightEmission = random.uniform(CELL_INERT_LIGHT_EMISSION_MIN, CELL_INERT_LIGHT_EMISSION_MIN)
+            self.lightAbsorption = random.uniform(CELL_INERT_LIGHT_ABSORPTION_MIN, CELL_INERT_LIGHT_ABSORPTION_MAX)
+            self.mutationRate = random.uniform(CELL_INERT_MUTATION_RATE_MIN, CELL_INERT_MUTATION_RATE_MAX)
+
 
 
     def move_or_squish(self, moving, direction, grid, inertGrid):
@@ -215,7 +244,7 @@ class Cell:
         # print(neighbor_states)
             
     # State of the cell: solid, liquid, gas, plasma, inert
-    def phase_transition(self):
+    def phaseTransition(self):
         if self.energy > CELL_STATE_PLASMA_ENERGY:
             self.state = "plasma"
             self.hue = random.uniform(CELL_STATE_PLASMA_COLOR_MIN, CELL_STATE_PLASMA_COLOR_MAX)
