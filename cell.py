@@ -6,9 +6,10 @@ import random
 from config import *
 
 class Cell:
-    def __init__(self, x, y, stats, organismCheck=None):
+    def __init__(self, x, y, stats, environment, organismCheck=None):
         self.id = stats.getCellNextID() # Cell ID
         self.alive = True
+        self.environment = environment
         self.role = "general"  # Role of the cell: general, structural, sensory, reproductive
         self.age = 0  # cell age (in turns)
         self.organism = organismCheck  # Tracks which organism this cell belongs to
@@ -123,7 +124,7 @@ class Cell:
                 print(f"IDK WHAT'S HERE: {grid[new_x, new_y]}")
         return True
         
-    def move(self, grid, lightGrid, inertGrid):
+    def move(self):
         if not self.alive or self.energy < CELL_MOVE_ENERGY_MIN:
             # print(f"Not moving because alive is {self.alive} & energy is {self.energy}")
             return
@@ -134,69 +135,73 @@ class Cell:
         max_signal = -1
         for dx, dy in potential_moves:
             # print(f"Considering move ({dx},{dy})")
-            new_x = (self.x + dx) % grid.shape[0]
-            new_y = (self.y + dy) % grid.shape[1]
-            if grid[new_x, new_y] == 0 or grid[new_x, new_y] is None or grid[new_x, new_y] == "gas":  # Allow passage through gas
+            new_x = (self.x + dx) % self.environment.grid.shape[0]
+            new_y = (self.y + dy) % self.environment.grid.shape[1]
+            if self.environment.grid[new_x, new_y] == 0 or \
+               self.environment.grid[new_x, new_y] is None or \
+               self.environment.grid[new_x, new_y] == "gas":  # Allow passage through gas
                 # print(f"Space is empty signal is {abs(lightGrid[new_x, new_y])} * {self.perception_strength}, max_signal is currently {max_signal}")
                 # TODO: change that to having "moving towards the highest energy cell it can sense"
-                signal = (abs(lightGrid[new_x, new_y]) * (waifuGrid[new_x, new_y]) * self.perception_strength) * ENVIRONMENT_VISIBILITY_MULTIPLIER
+                signal = (abs(self.environment.lightGrid[new_x, new_y]) * (self.environment.waifuGrid[new_x, new_y]) * self.perception_strength) * ENVIRONMENT_VISIBILITY_MULTIPLIER
                 # print(f"env: {lightGrid[new_x, new_y]} wai: {waifuGrid[new_x, new_y]} per: {self.perception_strength}")
                 if signal > max_signal:
                     # print(f"Best signal")
                     best_move = (dx, dy)
                     max_signal = signal
-            elif self.resilience > grid[new_x,new_y].resilience:
+            elif self.resilience > self.environment.grid[new_x,new_y].resilience:
                 # Current cell resilience sup to target resilience
                 # Try to push the target away
                 # print(f"Squish time")
-                grid[new_x,new_y].move_or_squish(self, (dx, dy), grid, inertGrid)
+                self.environment.grid[new_x,new_y].move_or_squish(self, (dx, dy), self.environment.grid, self.environment.inertGrid)
                 best_move = (dx, dy)
                 break
             # else:
             #    print(f"Space is full")
 
         dx, dy = best_move
-        new_x = (self.x + dx) % grid.shape[0]
-        new_y = (self.y + dy) % grid.shape[1]
+        new_x = (self.x + dx) % self.environment.grid.shape[0]
+        new_y = (self.y + dy) % self.environment.grid.shape[1]
         blockCounter = 0
-        if grid[new_x, new_y] == 0 or grid[new_x, new_y] is None or grid[new_x, new_y] == "gas" and blockCounter == 0:  # Move if space is empty or gas
+        if self.environment.grid[new_x, new_y] == 0 or \
+            self.environment.grid[new_x, new_y] is None or \
+            self.environment.grid[new_x, new_y] == "gas" and blockCounter == 0:  # Move if space is empty or gas
             # print(f"Moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
-            grid[self.x, self.y] = None
+            self.environment.grid[self.x, self.y] = None
             self.x, self.y = new_x, new_y
-            grid[self.x, self.y] = self
+            self.environment.grid[self.x, self.y] = self
             self.stats.addCellMove()
         else:
             if (dx, dy) == (0, 1) and blockCounter < 4:
                 dx, dy = (1, 0)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
-                grid[self.x, self.y] = None
-                self.x, self.y = (self.x + dx) % grid.shape[0], (self.y + dy) % grid.shape[1]
-                grid[self.x, self.y] = self
+                self.environment.grid[self.x, self.y] = None
+                self.x, self.y = (self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1]
+                self.environment.grid[self.x, self.y] = self
                 self.stats.addCellMove()
             if (dx, dy) == (1, 0) and blockCounter < 4:
                 dx, dy = (0, -1)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
-                grid[self.x, self.y] = None
-                self.x, self.y = (self.x + dx) % grid.shape[0], (self.y + dy) % grid.shape[1]
-                grid[self.x, self.y] = self
+                self.environment.grid[self.x, self.y] = None
+                self.x, self.y = (self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1]
+                self.environment.grid[self.x, self.y] = self
                 self.stats.addCellMove()
             if (dx, dy) == (0, -1) and blockCounter < 4:
                 dx, dy = (-1, 0)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
-                grid[self.x, self.y] = None
-                self.x, self.y = (self.x + dx) % grid.shape[0], (self.y + dy) % grid.shape[1]
-                grid[self.x, self.y] = self
+                self.environment.grid[self.x, self.y] = None
+                self.x, self.y = (self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1]
+                self.environment.grid[self.x, self.y] = self
                 self.stats.addCellMove()
             if (dx, dy) == (-1, 0) and blockCounter < 4:
                 dx, dy = (0, 1)
                 # print(f"Blocked, attempting to move to {new_x, new_y}")
                 blockCounter += 1
-                grid[self.x, self.y] = None
-                self.x, self.y = (self.x + dx) % grid.shape[0], (self.y + dy) % grid.shape[1]
-                grid[self.x, self.y] = self
+                self.environment.grid[self.x, self.y] = None
+                self.x, self.y = (self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1]
+                self.environment.grid[self.x, self.y] = self
                 self.stats.addCellMove()
             else:
                 if self.x != new_x or self.y != new_y:
@@ -217,41 +222,45 @@ class Cell:
         else:
             return hsv_to_rgb((self.hue, min(1, max(0.5, self.energy / (top_energy))), min(1, max(0.8, self.energy / top_energy))))
 
-    def absorb_nutrients(self, lightGrid):
+    def absorbNutrients(self):
         if self.alive:
-            nutrients = lightGrid[self.x, self.y]
+            nutrients = self.environment.getLightAt(self.x, self.y) #lightGrid[self.x, self.y]
             self.energy += nutrients * self.growth_rate * 5
-            lightGrid[self.x, self.y] = max(lightGrid[self.x, self.y] - 0.02, 0)  # Deplete nutrients
+            self.environment.depleteLightAt(self.x, self.y, 0.02)
+            # self.environment.lightGrid[self.x, self.y] = max(self.environment.lightGrid[self.x, self.y] - 0.02, 0)  # Deplete nutrients
 
-    def emit_light(self, lightGrid):
+    def emitLight(self, lightGrid):
         if self.state == "plasma": # Plasma cells consistently emit high light
             self.light_emission = 5
-            lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
+            # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         elif random.random() < 0.01 and self.energy > 120: # Non-plasma cells have a random chance to emit light
             self.light_emission = 1
-            lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
+            # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         else:
             self.light_emission = 0
+        self.environment.addLightAt(self.x, self.y, self.light_emission)
             
     def waifuSignal(self, waifuGrid):
         if self.alive:
-            waifuGrid[self.x, self.y] = min(waifuGrid[self.x, self.y] + self.attractiveness, 100)
-            vibes = waifuGrid[self.x, self.y]
+            self.environment.addAttractivenessAt(self.x, self.y, )
+            # waifuGrid[self.x, self.y] = min(waifuGrid[self.x, self.y] + self.attractiveness, 100)
+            vibes = self.environment.getAttractivenessAt(self.x, self.y) # waifuGrid[self.x, self.y]
             self.attractiveness += vibes * self.growth_rate * 0.5
         else:
-            waifuGrid[self.x, self.y] = 0
+            self.environment.setAttractivenessAt(self.x, self.y, 0)
+            # waifuGrid[self.x, self.y] = 0
 
-    def sense_environment(self, grid):
+    def senseEnvironment(self):
         if not self.alive:
             return None
         # Detect neighboring states and light levels
         neighbor_states = {}
         for dx, dy in [(0, 1), (1, 0), (0, -1), (-1, 0)]:
-            nx, ny = (self.x + dx) % grid.shape[0], (self.y + dy) % grid.shape[1]
+            nx, ny = (self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1]
             neighbor_states[(dx, dy)] = {
-                "state": grid[nx, ny],
-                "light": grid[nx, ny].light_emission if isinstance(grid[nx, ny], Cell) else 0,
-                "rating": grid[nx, ny].waifuSignal if isinstance(grid[nx, ny], Cell) else 0
+                "state": self.environment.grid[nx, ny],
+                "light": self.environment.grid[nx, ny].light_emission if isinstance(self.environment.grid[nx, ny], Cell) else 0,
+                "rating": self.environment.grid[nx, ny].waifuSignal if isinstance(self.environment.grid[nx, ny], Cell) else 0
             }
         return neighbor_states
         # print(neighbor_states)
@@ -279,7 +288,7 @@ class Cell:
             self.hue = self.hue if hasattr(self, "hue") else random.uniform(CELL_STATE_INERT_COLOR_MIN, CELL_STATE_INERT_COLOR_MAX)
             self.alpha = CELL_STATE_INERT_ALPHA_MIN
 
-    def reproduce(self, grid, lightGrid):
+    def reproduce(self, grid):
         if not self.alive or (self.age > CELL_FERTILITY_AGE_MAX) or (self.age < CELL_FERTILITY_AGE_MIN):
             return False
         # reproducing a cell inside an organism (will be done in organism)
@@ -307,14 +316,14 @@ class Cell:
                 return False
         return False
 
-    def decay(self, lightGrid, inertGrid):
+    def decay(self):
         if not self.alive:
             return
         self.energy -= (CELL_DECAY_ENERGY_MULTIPLIER / (self.resilience+(self.age/100)) * self.speed)  # Energy loss increases with speed
         self.age += CELL_DECAY_AGE_PER_TURN
         self.attractiveness = ((self.energy*(CELL_ATTRACTIVENESS_NORM_ENERGY/100))+(self.age*(CELL_ATTRACTIVENESS_NORM_AGE/100))+(self.growth_rate*CELL_ATTRACTIVENESS_NORM_GROWTH)+(self.resilience*CELL_ATTRACTIVENESS_NORM_RESILIENCE)+(self.perception_strength*CELL_ATTRACTIVENESS_NORM_STRENGTH)+(self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+(self.light_emission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION))/70
         #print(f"Rated {self.attractiveness}% hot")
-        if self.energy <= 0 or self.age > self.lifeExpectancy):  # Death by starvation or old age
+        if ((self.energy <= 0) or (self.age > self.lifeExpectancy)):  # Death by starvation or old age
             self.alive = False
             print(f"Died from state {self.state} Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn")
             if self.energy >= 0:
@@ -323,5 +332,21 @@ class Cell:
                 self.stats.addCellDeath(CELL_DEATH_REASON_STARVATION)
             self.energy = 0
             self.state = "inert"
-            lightGrid[self.x, self.y] += CELL_DEATH_RELEASE_LIGHT  # Dead cells release light for some reason
-            inertGrid[self.x, self.y] += CELL_DEATH_RELEASE_INERT # Drop inert resources onto inert grid
+            self.environment.addLightAt(self.x, self.y, CELL_DEATH_RELEASE_LIGHT)
+            self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
+            #lightGrid[self.x, self.y] += CELL_DEATH_RELEASE_LIGHT  # Dead cells release light for some reason
+            #inertGrid[self.x, self.y] += CELL_DEATH_RELEASE_INERT # Drop inert resources onto inert grid
+
+    def needTurn(self, turn):
+        return self.step_count < turn
+
+    def runLoop(self, turn):
+        self.step_count = turn
+        self.move()
+        self.absorbNutrients()
+        self.phaseTransition()
+        self.reproduce()
+        self.decay()
+        self.waifuSignal()
+        if self.energy > VISUALISATION_BASE_ENERGY_TOP_RECORD:
+            VISUALISATION_BASE_ENERGY_TOP_RECORD = self.energy

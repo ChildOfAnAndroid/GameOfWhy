@@ -4,44 +4,37 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from functools import partial
-import numpy as np
-import random
 from config import *
 from cell import *
 
 class Visualisation:
-    def __init__(self, stats, environment):
+    def __init__(self, stats, environments):
         # Visualization and Interaction
         self.stats = stats
-        self.environment = environment
+        self.environments = environments
         plt.ion()
         self.fig, self.ax = plt.subplots()
         self.cid = self.fig.canvas.mpl_connect('button_press_event', partial(self.on_click, self))
-        top_energy = VISUALISATION_BASE_ENERGY_TOP_RECORD
-        for step in range(NUM_STEPS):
-            print(f"Step {step} start")
-            stats.beginTurn()
-            self.ax.clear()
-            #ax.imshow(gridSize, alpha=0.5)
-            self.ax.imshow(inertGrid, cmap=terrain_colormap, alpha=INERT_GRID_TRANSPARENCY)
-            self.ax.imshow(waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY, interpolation="bilinear")
-            self.ax.imshow(lightGrid, cmap=purple_yellow_colormap, alpha=LIGHT_GRID_TRANSPARENCY, interpolation="bilinear")
 
-            key = {}
-            key["gas"] = {
-                "color": (150, 0, 100),
-                "count": 0
-            }
-            for x in range(grid.shape[0]):
-                for y in range(grid.shape[1]):
-                    cell = grid[x,y]
-                    if isinstance(cell, Cell): #and cell.alive:
-                        if cell.alive:
-                            stats.addCellAlive()
-                            try:
-                                ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor(top_energy), alpha=cell.get_alpha()))
-                            except Exception as e:
-                                print(f"Color is {cell.get_color(top_energy)} (current energy {cell.energy} top_energy {top_energy}), Alpha is {cell.getCellAlpha()} state: {cell.state} alive: {cell.alive} {cell} ({e})")
+    def runLoop(self, turn):
+        top_energy = VISUALISATION_BASE_ENERGY_TOP_RECORD
+        print(f"Step {turn} start visualisation")
+        self.ax.clear()
+        #ax.imshow(gridSize, alpha=0.5)
+        self.ax.imshow(self.environments.inertGrid, cmap=terrain_colormap, alpha=INERT_GRID_TRANSPARENCY)
+        self.ax.imshow(self.environments.waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY, interpolation="bilinear")
+        self.ax.imshow(self.environments.lightGrid, cmap=purple_yellow_colormap, alpha=LIGHT_GRID_TRANSPARENCY, interpolation="bilinear")
+ 
+        for x in range(self.environments.grid.shape[0]):
+            for y in range(self.environments.grid.shape[1]):
+                cell = self.environments.grid[x,y]
+                if isinstance(cell, Cell): #and cell.alive:
+                    if cell.alive:
+                        self.stats.addCellAlive()
+                        try:
+                            self.ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor(top_energy), alpha=cell.get_alpha()))
+                        except Exception as e:
+                            print(f"Color is {cell.get_color(top_energy)} (current energy {cell.energy} top_energy {top_energy}), Alpha is {cell.getCellAlpha()} state: {cell.state} alive: {cell.alive} {cell} ({e})")
         """
         for organism in organisms:
             if organism.is_alive():
@@ -62,6 +55,11 @@ class Visualisation:
                 if organism.name:
                     print(f"Organism {organism.organism_id} has named itself: {organism.name}")
         """
+        # key = {}
+        # key["gas"] = {
+        #     "color": (150, 0, 100),
+        #     "count": 0
+        # }
         # full_key=[]
         # for k in key:
         #     v=key[k]
@@ -70,10 +68,17 @@ class Visualisation:
         #     full_key.append(patch)
         # self.ax.legend(handles=full_key)
 
-        self.ax.set_title(f"Step {step + 1} ({stats.cellAliveCount})")
-        print(f"Done plotting, {self.stats.cellAliveCount} cells are alive and displayed. Starting env changes")
+        self.ax.set_title(f"Step {turn + 1} ({self.stats.cellAliveCount})")
+        print(f"Done plotting, {self.stats.cellAliveCount} cells are alive and displayed")
         plt.pause(0.1)
 
+    # Ends the run after a 60 seconds timer
+    def endRun(self, turn):
+        exitAfter = 60
+        for seconds in range(exitAfter):
+            self.ax.set_title(f"Final step {turn}, no alive cell. Ending simulation in {exitAfter - seconds}")
+            plt.pause(1.0)
+    
     def on_click(self, event):
         # Handles mouse clicks to place cells
         if event.xdata is None or event.ydata is None:

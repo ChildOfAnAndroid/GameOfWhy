@@ -16,6 +16,8 @@ class Stats:
         # birth statistics
         self.cellBabyCounter = 0
         self.cellBabysFailedCounter = 0
+        self.cellForcedSpawnCounter = 0
+        self.cellFailedForcedSpawnCounter = 0
 
         # Movement statistics
         self.cellMovedCounter = 0
@@ -43,6 +45,9 @@ class Stats:
         print(f"Turn Summary: There are currently {self.cellAliveCount} living cells. There were {self.cellBabysThisTurn} babies born, {self.getDeathsThisTurn()} cells died, and {self.cellDeathEscapesThisTurn} cells evaded death! ")
         print(self)
 
+    def endRun(self):
+        print(self)
+
     def __str__(self):
         return f"""
 Total Cell Count: {self.cellCounter+1}
@@ -54,8 +59,8 @@ By Reason:
 Total Cell Escapes: {self.cellDeathEscapeCounter}
 
 # Birth Statistics
-Total Cell Babies: {self.cellBabyCounter}
-Total Cell Skipped Babies: {self.cellBabysFailedCounter}
+Total Cell Babies: {self.cellBabyCounter} (manual {self.cellForcedSpawnCounter})
+Total Cell Skipped Babies: {self.cellBabysFailedCounter} (manual {self.cellFailedForcedSpawnCounter})
 
 # Movement Statistics
 Total Cell Movements: {self.cellMovedCounter}
@@ -105,6 +110,12 @@ Cells Alive: {self.cellAliveCount}
     def addCellMove(self):
         self.cellMovedCounter += 1
         self.cellMovedThisTurn += 1
+
+    def addCellForcedSpawn(self):
+        self.cellForcedSpawnCounter += 1
+
+    def addCellFailedForcedSpawn(self):
+        self.cellFailedForcedSpawnCounter += 1
 
     def getTotalDeath(self):
         total = 0

@@ -2,10 +2,7 @@
 # CHARIS CAT 2024
 
 from automaton import *
-from cell import *
-from config import *
 from environment import *
-from organism import *
 from stats import *
 from visualisation import *
 
@@ -31,6 +28,28 @@ class Main:
     """
 
     def __init__(self):
-        stats = Stats()
-        environment = Environment()
+        self.stats = Stats()
+        self.environments = Environment(self.stats)
+        self.automaton = Automaton(self.stats, self.environments)
+        self.visualisation = Visualisation(self.stats, self.environments)
+
+    def run(self):
+        for turn in range(NUM_STEPS):
+            self.stats.beginTurn()
+            self.visualisation.runLoop(turn)
+            self.environments.runLoop(turn)
+            self.automaton.runLoop(turn)
+            self.stats.endTurn()
+
+            # Early exit condition: nothing is alive anymore
+            if not self.environments.isAlive():
+                print("The environment has died off.")
+                self.visualisation.endRun(turn)
+                break
         
+        self.stats.endRun()
+
+
+# Set it to auto-run this file
+main = Main()
+main.run()
