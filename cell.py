@@ -147,128 +147,108 @@ class Cell:
             self.fertilityAgeMax = random.uniform(CELL_BASE_FERTILITY_END_AGE_MIN, CELL_BASE_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = random.uniform(CELL_BASE_FERTILITY_ENERGY_MIN, CELL_BASE_FERTILITY_ENERGY_MAX)
             self.mass = random.uniform(CELL_BASE_MASS_MIN, CELL_BASE_MASS_MAX)
-
-
+    
     def moveOrSquish(self, moving, direction):
         dx, dy = direction
         new_x = (self.x + dx) % self.environment.grid.shape[0]
         new_y = (self.y + dy) % self.environment.grid.shape[1]
+        # Use signalGrid for perception-based movement
+        signal_at_target = self.environment.signalGrid[new_x, new_y]
+
         # Found an empty space
         if self.environment.canAddCellAt(new_x, new_y):
             self.environment.moveCellTo(new_x, new_y, self)
-            print(f"Escaped a death squish!")
+            print(f"Escaped a death squish! Ran to signal {signal_at_target}")
             self.stats.addCellDeathEscape()
             self.stats.addCellMove()
-            self.memory.append((self.turnCount, "Escaped a death squish!", (new_x, new_y)))
+            self.resilience += random.uniform(0,0.2)*self.resilience
+            self.energy -= random.uniform(0,0.2)*self.energy
+            self.memory.append((self.turnCount, "Escaped a death squish!", {signal_at_target}))
             if not self.alive: # if cell is already inert and needs to move, update inertGrid
-                self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
+                self.environment.addInertAt(self.x, self.y, (random.uniform(0.8, 1.2) * CELL_DEATH_RELEASE_INERT))
             return True
-        else:
-            cell = self.environment.getCellAt(new_x, new_y)
-            if isinstance(cell, Cell):
-                if cell.resilience > self.resilience:
-                    # the target cell get squished
-                    ratio = random.uniform(CELL_DEATH_RELEASE_SQUISH_MIN, CELL_DEATH_RELEASE_SQUISH_MAX)
-                    ratioResult = max(0, self.energy * ratio) # Squish release of energy (norty?!)
-                    cell.energy += ratioResult
-                    moving.energy += max(0, self.energy * (1-ratio))
-                    self.alive = False
-                    self.environment.removeCellFromGrid(self)
-                    print(f"Died from cuddles. Energy: {self.energy}, lost {ratioResult} this turn {self}")
-                    self.memory.append((self.turnCount, "Died from cuddles", (self.x, self.y)))
-                    self.stats.addCellDeath(CELL_DEATH_REASON_SQUISH)
-                    self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
-                    return False
-                else:
-                    # the destination cell moves out the way
-                    self.environment.getCellAt(new_x, new_y).moveOrSquish(self, direction)
+
+        cell = self.environment.getCellAt(new_x, new_y)
+        if isinstance(cell, Cell):
+            #if cell.speed < (self.speed):
+            if cell.resilience > (self.resilience*2):
+                # the target cell get squished
+                ratio = random.uniform(CELL_DEATH_RELEASE_SQUISH_MIN, CELL_DEATH_RELEASE_SQUISH_MAX)
+                squishEnergyTransfer = max(0, self.energy * ratio) # Squish release of energy (norty?!)
+                cell.energy += squishEnergyTransfer
+                self.alive = False
+                self.environment.removeCellFromGrid(self)
+                print(f"Died from cuddles. Energy: {self.energy}, lost {squishEnergyTransfer} this turn")
+                self.memory.append((self.turnCount, "Died from cuddles", squishEnergyTransfer))
+                self.stats.addCellDeath(CELL_DEATH_REASON_SQUISH)
+                self.environment.addInertAt(self.x, self.y, (random.uniform(CELL_DEATH_RELEASE_SQUISH_MIN, CELL_DEATH_RELEASE_SQUISH_MIN)))
+                return False
+            
+            else:
+                # The destination cell attempts to move away
+                cell.moveOrSquish(self, direction)
+                if self.environment.canAddCellAt(new_x, new_y):
                     self.environment.moveCellTo(new_x, new_y, self)
-                    print(f"The Vengabus is Evolving O.o")
+                    print(f"The Vengabus is Evolving O.o at signal {signal_at_target}")
                     self.stats.addCellPush()
                     self.stats.addCellMove()
-                    self.memory.append((self.turnCount, "Move Bounced", (new_x, new_y)))
+                    self.memory.append((self.turnCount, "The Vengabus is Evolving O.o at signal {signal_at_target} (Move Bounced)", (new_x, new_y)))
                     if not self.alive:
                         self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
+                return True
                     
-            else:
-                print(f"IDK WHAT'S HERE: {cell}")
+        print(f"IDK WHAT'S HERE: {cell} at signal {signal_at_target}")
+        self.memory.append((self.turnCount, "IDK WHAT'S HERE: {cell} at signal {signal_at_target}", {signal_at_target}))
         return True
         
     def move(self):
         if not self.alive or self.energy < CELL_MOVE_ENERGY_MIN:
+            self.memory.append((self.turnCount, "had a lie in today", self.energy))
+            self.stats.addCellStop()
             # print(f"Not moving because alive is {self.alive} & energy is {self.energy}")
             return
+        
         # Movement based on environmental signals and nutrient concentration
-        potential_moves = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-        random.shuffle(potential_moves)
-        best_move = (0, 0)
-        max_signal = -1
-        for dx, dy in potential_moves:
-            # print(f"Considering move ({dx},{dy})")
-            new_x = (self.x + dx) % self.environment.grid.shape[0]
-            new_y = (self.y + dy) % self.environment.grid.shape[1]
-            if self.environment.grid[new_x, new_y] == 0 or \
-               self.environment.grid[new_x, new_y] is None or \
-               self.environment.grid[new_x, new_y] == "gas":  # Allow passage through gas
-                # print(f"Space is empty signal is {abs(lightGrid[new_x, new_y])} * {self.perception_strength}, max_signal is currently {max_signal}")
-                # TODO: change that to having "moving towards the highest energy cell it can sense"
-                signal = (abs((self.environment.lightGrid[new_x, new_y]) + (self.environment.waifuGrid[new_x, new_y])) * self.perceptionStrength) * ENVIRONMENT_VISIBILITY_MULTIPLIER
+        potentialMoves = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        random.shuffle(potentialMoves)
+        blockCounter = 0
+        maxMoveAttempts = 4
+
+        while blockCounter < maxMoveAttempts:
+            bestMove = None
+            maxSignal = -1
+            for dx, dy in potentialMoves:
+                # print(f"Considering move ({dx},{dy})")
+                new_x = (self.x + dx) % self.environment.grid.shape[0]
+                new_y = (self.y + dy) % self.environment.grid.shape[1]
+                signal = self.environment.signalGrid[new_x, new_y]
+                self.memory.append((self.turnCount, "Considered another direction", ({dx},{dy})))
                 # print(f"env: {lightGrid[new_x, new_y]} wai: {waifuGrid[new_x, new_y]} per: {self.perception_strength}")
-                if signal > max_signal:
+                if signal > maxSignal and self.environment.canAddCellAt(new_x, new_y):
                     # print(f"Best signal")
-                    best_move = (dx, dy)
-                    max_signal = signal
-            elif self.resilience > self.environment.grid[new_x,new_y].resilience:
+                    bestMove = (dx, dy)
+                    maxSignal = signal
+            if bestMove:
+                bestMove = (dx, dy)
+                new_x = (self.x + dx) % self.environment.grid.shape[0]
+                new_y = (self.y + dy) % self.environment.grid.shape[1]
+                self.environment.moveCellTo(new_x, new_y, self)
+                self.stats.addCellMove()
+                self.memory.append((self.turnCount, f"Moved to signal {maxSignal}", (new_x, new_y)))
+            
+            else:
+                blockCounter += 1
+                self.memory.append((self.turnCount, f"You're really gonna block me {blockCounter} time(s)?", (self.x, self.y)))
+
+            if self.resilience > self.environment.grid[new_x,new_y].resilience:
                 # Current cell resilience sup to target resilience
                 # Try to push the target away
                 # print(f"Squish time")
                 self.environment.grid[new_x,new_y].moveOrSquish(self, (dx, dy))
-                best_move = (dx, dy)
-                break
-            # else:
-            #    print(f"Space is full")
-
-        dx, dy = best_move
-        new_x = (self.x + dx) % self.environment.grid.shape[0]
-        new_y = (self.y + dy) % self.environment.grid.shape[1]
-        blockCounter = 0
-        if self.environment.grid[new_x, new_y] == 0 or \
-            self.environment.grid[new_x, new_y] is None or \
-            self.environment.grid[new_x, new_y] == "gas" and blockCounter == 0:  # Move if space is empty or gas
-            # print(f"Moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
-            self.environment.moveCellTo(new_x, new_y, self)
-            self.stats.addCellMove()
-            self.memory.append((self.turnCount, "Moved", (new_x, new_y)))
-        else:
-            if (dx, dy) == (0, 1) and blockCounter < 4:
-                dx, dy = (1, 0)
-                # print(f"Blocked, attempting to move to {new_x, new_y}")
-                blockCounter += 1
-                self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
-                self.stats.addCellMove()
-                self.memory.append((self.turnCount, "Moved to 2nd best position", (new_x, new_y)))
-            if (dx, dy) == (1, 0) and blockCounter < 4:
-                dx, dy = (0, -1)
-                # print(f"Blocked, attempting to move to {new_x, new_y}")
-                blockCounter += 1
-                self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
-                self.stats.addCellMove()
-                self.memory.append((self.turnCount, "Moved to 3rd best position", (new_x, new_y)))
-            if (dx, dy) == (0, -1) and blockCounter < 4:
-                dx, dy = (-1, 0)
-                # print(f"Blocked, attempting to move to {new_x, new_y}")
-                blockCounter += 1
-                self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
-                self.stats.addCellMove()
-                self.memory.append((self.turnCount, "Moved to worst position", (new_x, new_y)))
-            if (dx, dy) == (-1, 0) and blockCounter < 4:
-                dx, dy = (0, 1)
-                # print(f"Blocked, attempting to move to {new_x, new_y}")
-                blockCounter += 1
-                self.environment.moveCellTo((self.x + dx) % self.environment.grid.shape[0], (self.y + dy) % self.environment.grid.shape[1], self)
-                self.stats.addCellMove()
-                self.memory.append((self.turnCount, "Move Looped", (new_x, new_y)))
-            else:
+                self.memory.append((self.turnCount, "did he die!?", {self.resilience}))
+                self.energy = random.uniform(0.8, 1.1) * self.energy
+                self.memory.append((self.turnCount, "wait, huh?!", {self.energy}))
+        
                 if self.x != new_x or self.y != new_y:
                     print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
                     self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
@@ -417,7 +397,7 @@ class Cell:
         #if self.organism is not None:
         #    return False
         # Generate a baby cell if enough energy
-        if (random.random()*100) < self.fertilityRate or (self.attractiveness > ((CellAttractivenessTopRecord/10)*9)):
+        if (random.random()*100) < self.fertilityRate or (self.attractiveness > ((self.CellAttractivenessTopRecord/10)*9)):
             if self.state is "inert": # inert cells 'birth' enrichment onto environment
                 enrichInert = min(self.age, self.mass)
                 self.mass -= enrichInert
@@ -446,13 +426,13 @@ class Cell:
                     baby_cell.role = random.choice(CELL_ROLES)
                     self.environment.setCellAt(x, y, baby_cell)
                     # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")
-                    if self.attractiveness < ((CellAttractivenessTopRecord/10)*9):
+                    if self.attractiveness < ((self.CellAttractivenessTopRecord/10)*9):
                         self.memory.append((self.turnCount, "Wait, une bebe?! Where did this thing come from!?", {self.fertilityRate}))
-                        self.stats.addCellBaby("fertility")
+                        self.stats.addCellBaby("Fertile")
                         return True
                     else:
                         self.memory.append((self.turnCount, "Can't believe i'm finally a parent!", {self.attractiveness}))
-                        self.stats.addCellBaby("attractiveness")
+                        self.stats.addCellBaby("Attractive")
                         return True
                 else:
                     self.energy = (self.energy/CELL_REPRODUCTION_FAILURE_COST)
@@ -470,8 +450,8 @@ class Cell:
         self.growthRate -= random.uniform(0.95, 1.05) * self.growthDecayRate
         self.lifeExpectancy = random.uniform(0.95, 1.05) * random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)
         self.attractiveness = random.uniform(0.95, 1.05) * ((self.energy*(CELL_ATTRACTIVENESS_NORM_ENERGY))+(self.age*(CELL_ATTRACTIVENESS_NORM_AGE))+(self.growthRate*CELL_ATTRACTIVENESS_NORM_GROWTH)+(self.resilience*CELL_ATTRACTIVENESS_NORM_RESILIENCE)+(self.perceptionStrength*CELL_ATTRACTIVENESS_NORM_STRENGTH)+(self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+(self.lightEmission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION))/7
-        if self.attractiveness > CellAttractivenessTopRecord:
-            CellAttractivenessTopRecord = self.attractiveness
+        if self.attractiveness > self.CellAttractivenessTopRecord:
+            self.CellAttractivenessTopRecord = self.attractiveness
         if self.energy >= self.topEnergy * (random.uniform(0.9, 1.1) * CELL_DECAY_TOP_ENERGY_EXCESS):
             self.topEnergyDecay = self.topEnergy - ((self.topEnergy/10) * CELL_DECAY_TOP_ENERGY_MULTIPLIER)
             self.topEnergy = self.topEnergyDecay

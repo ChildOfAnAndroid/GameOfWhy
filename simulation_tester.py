@@ -43,7 +43,7 @@ def run_simulation_and_log(main_class, output_file="simulation_metrics.log"):
             "energy_gain": {},
             "energy_loss": {},
             "state_changes": {},
-            "births": 0,
+            "births": 0,  # Ensure births is initialized as an integer
             "deaths": 0,
             "critical_cells": [],
             "average_energy": 0,
@@ -145,7 +145,7 @@ def run_simulation_and_log(main_class, output_file="simulation_metrics.log"):
         turn_data["min_energy"] = min_energy
 
         # Log births and deaths
-        turn_data["births"] = simulation.stats.cellBabysThisTurn
+        turn_data["births"] = sum(simulation.stats.cellBabysThisTurn.values()) if isinstance(simulation.stats.cellBabysThisTurn, dict) else simulation.stats.cellBabysThisTurn
         turn_data["deaths"] = simulation.stats.getDeathsThisTurn()
 
         # Log state changes
@@ -164,13 +164,16 @@ def run_simulation_and_log(main_class, output_file="simulation_metrics.log"):
             "light_min": light_min,
             "light_max": light_max,
             "attractiveness_min": attractiveness_min,
-            "attractiveness_max": attractiveness_max
+            "attractiveness_max": attractiveness_max,
+            "light_sum": environment.lightGrid.sum(),  # Total light value in the grid
+            "attractiveness_sum": environment.waifuGrid.sum(),  # Total attractiveness in the grid
         }
 
         # Track resource logs
         turn_data["resource_logs"] = {
             "light_min": light_min,
-            "light_max": light_max
+            "light_max": light_max,
+            "light_sum": environment.lightGrid.sum(),
         }
 
         # Aggregate metrics

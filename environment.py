@@ -16,6 +16,32 @@ class Environment:
         self.lightGrid = np.random.random((GRID_SIZE, GRID_SIZE)) * 5  # Light levels
         self.waifuGrid = np.zeros((GRID_SIZE, GRID_SIZE))
         self.inertGrid = np.zeros((GRID_SIZE, GRID_SIZE)) # Fully decayed inerts
+        self.signalGrid = np.zeros((GRID_SIZE, GRID_SIZE))  # Shared perception map
+
+    def updateSignalCache(self):
+        self.signalGrid.fill(0)
+        # Combine light, waifu, and grid contents
+        for x in range(self.grid.shape[0]):
+            for y in range(self.grid.shape[1]):
+                cell = self.grid[x, y]
+
+                # Base signal from light and waifu grids
+                baseSignal = (self.lightGrid[x, y] * LIGHT_GRID_IMPORTANCE) + (self.waifuGrid[x, y] + ATTRACTIVENESS_GRID_IMPORTANCE) + (self.inertGrid[x, y] + INERT_GRID_IMPORTANCE) + (self.grid[x, y] + MAIN_GRID_IMPORTANCE)
+
+                if cell is None or cell == 0 or cell == "gas":
+                    # Empty or passable space, keep base signal
+                    self.signalGrid[x, y] = baseSignal
+                elif isinstance(cell, Cell):
+                    # Occupied by a cell: factor in cell attributes
+                    cellSignal = baseSignal
+                    cellSignal -= cell.resistance * 0.1
+                    if cell.state == "liquid":
+                        cellSignal += random.uniform(0.5,2)
+                    cellSignal += cell.lightEmission * 1.2
+                    self.signalGrid[x, y] = cellSignal
+                else:
+                    # Impassable terrain (e.g., "inert"), zero out the signal
+                    self.signalGrid[x, y] = baseSignal * 0.01
 
     # Enrich environment dynamically
     def enrich_environment(self):

@@ -30,26 +30,29 @@ class Stats:
         # Movement statistics
         self.cellMovedCounter = 0
         self.cellPushedCounter = 0
+        self.cellStoppedCounter = 0
 
         # TURN STATISTICS
-        self.cellBabysThisTurn = 0
+        self.cellBabysThisTurn = {}
         self.cellBabysFailedThisTurn = {}
         self.cellDeathsThisTurn = {}
         self.cellDeathEscapesThisTurn = 0
         self.cellMovedThisTurn = 0
         self.cellPushedThisTurn = 0
+        self.cellStoppedThisTurn = 0
         self.cellAliveCount = 0
         self.cellYouthCount = 0
         self.cellElderlyCount = 0
         self.cellAdultCount = 0
 
     def beginTurn(self):
-        self.cellBabysThisTurn = 0
+        self.cellBabysThisTurn = {}
         self.cellDeathsThisTurn = {}
         self.cellDeathEscapesThisTurn = 0
         self.cellBabysFailedThisTurn = {}
         self.cellPushedThisTurn = 0
         self.cellMovedThisTurn = 0
+        self.cellStoppedThisTurn = 0
         self.cellAliveCount = 0
         self.cellYouthCount = 0
         self.cellElderlyCount = 0
@@ -88,6 +91,7 @@ Total Cell Babies Unspawned: {self.cellFailedForcedSpawnCounter}
 # Movement Statistics
 Total Cell Movements: {self.cellMovedCounter}
 Total Cell Pushed: {self.cellPushedCounter}
+Total Cell Stopped: {self.cellStoppedCounter}
 
 # State Statistics
 Total State Changes: {self.getCellStateChangeTotal()}
@@ -103,6 +107,7 @@ Cell Death: {self.getDeathsThisTurn()}
 Cell Escapes: {self.cellDeathEscapesThisTurn}
 Cell Movements: {self.cellMovedThisTurn}
 Cell Pushes: {self.cellPushedThisTurn}
+Cell Stops: {self.cellStoppedThisTurn}
 Cells Alive: {self.cellAliveCount} (Youth: {self.cellYouthCount}, Adults: {self.cellAdultCount}, Elderly: {self.cellElderlyCount})
 Switched Cell States: {self.getCellStateChangesThisTurn()} 
 By State:
@@ -110,14 +115,14 @@ By State:
 Stable Cell States: {self.cellStateStableThisTurn}
 """
 
-    def addCellBaby(self):
+    def addCellBaby(self, reason):
         if reason in self.cellBabyCounter:
             self.cellBabyCounter[reason] += 1
 
         else:
             self.cellBabyCounter[reason] = 1
         
-        if reason in self.cellBabysThisTurn[reason]:
+        if reason in self.cellBabysThisTurn:
             self.cellBabysThisTurn[reason] += 1
 
         else:
@@ -159,6 +164,10 @@ Stable Cell States: {self.cellStateStableThisTurn}
     def addCellMove(self):
         self.cellMovedCounter += 1
         self.cellMovedThisTurn += 1
+
+    def addCellStop(self):
+        self.cellStoppedCounter += 1
+        self.cellStoppedThisTurn += 1
 
     def addCellForcedSpawn(self):
         self.cellForcedSpawnCounter += 1
