@@ -2,8 +2,8 @@
 # CHARIS CAT 2024
 
 from matplotlib.colors import hsv_to_rgb
-import numpy as np
 import random
+from config import *
 
 class Cell:
     def __init__(self, x, y, stats, organism=None):
@@ -245,14 +245,14 @@ class Cell:
         #    return
         # Generate a baby cell if enough energy
         if random.random() < CELL_FERTILITY_CHANCE_MIN or self.attractiveness > 9 or self.energy > CELL_FERTILITY_ENERGY_MIN:
-            x, y = (cell.x + random.choice([-1, 1])) % grid.shape[0], (cell.y + random.choice([-1, 1])) % grid.shape[1]
+            x, y = (self.x + random.choice([-1, 1])) % grid.shape[0], (self.y + random.choice([-1, 1])) % grid.shape[1]
             if grid[x, y] == 0 or grid[x, y] is None:  # Empty spot
                 self.energy = (self.energy/CELL_REPRODUCTION_SUCCESS_COST)
                 baby_cell = Cell(x, y, self.stats, organism=None)
-                baby_cell.growth_rate = max(0.5, min(2.0, cell.growth_rate + random.uniform(CELL_BABY_MUTATION_GROWTH_MIN, CELL_BABY_MUTATION_GROWTH_MAX)))
-                baby_cell.resilience = max(0.5, min(2.0, cell.resilience + random.uniform(CELL_BABY_MUTATION_RESILIENCE_MIN, CELL_BABY_MUTATION_RESILIENCE_MAX)))
-                baby_cell.perception_strength = max(0.1, min(1.0, cell.perception_strength + random.uniform(CELL_BABY_MUTATION_PERCEPTION_MIN, CELL_BABY_MUTATION_PERCEPTION_MAX)))
-                baby_cell.speed = max(0.5, min(2.0, cell.speed + random.uniform(CELL_BABY_MUTATION_SPEED_MIN, CELL_BABY_MUTATION_SPEED_MAX)))
+                baby_cell.growth_rate = max(0.5, min(2.0, self.growth_rate + random.uniform(CELL_BABY_MUTATION_GROWTH_MIN, CELL_BABY_MUTATION_GROWTH_MAX)))
+                baby_cell.resilience = max(0.5, min(2.0, self.resilience + random.uniform(CELL_BABY_MUTATION_RESILIENCE_MIN, CELL_BABY_MUTATION_RESILIENCE_MAX)))
+                baby_cell.perception_strength = max(0.1, min(1.0, self.perception_strength + random.uniform(CELL_BABY_MUTATION_PERCEPTION_MIN, CELL_BABY_MUTATION_PERCEPTION_MAX)))
+                baby_cell.speed = max(0.5, min(2.0, self.speed + random.uniform(CELL_BABY_MUTATION_SPEED_MIN, CELL_BABY_MUTATION_SPEED_MAX)))
                 baby_cell.role = random.choice(CELL_ROLES)
                 grid[x, y] = baby_cell
                 # print("UNEBEBEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!1!!!!!!!!!!!!!1!!!")

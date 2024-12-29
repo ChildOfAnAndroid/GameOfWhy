@@ -1,6 +1,8 @@
 # CONFIG FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+from matplotlib.colors import LinearSegmentedColormap
+
 # ENVIRONMENT SIMULATION SETTINGS #
 GRID_SIZE = 100
 NUM_STEPS = 50000

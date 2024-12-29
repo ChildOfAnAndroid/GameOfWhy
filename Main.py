@@ -10,22 +10,27 @@ from stats import *
 from visualisation import *
 
 class Main:
-"""
+    """
 
-pre game:
-initialise environment
-initialise cells
+    pre game:
+    initialise environment
+    initialise cells
 
 
-each turn:
-revisualise
-move cells
-refresh environment
+    each turn:
+    revisualise
+    move cells
+    refresh environment
 
-end of turn:
-print results
+    end of turn:
+    print results
 
-end of game:
-print results
+    end of game:
+    print results
 
-"""
+    """
+
+    def __init__(self):
+        stats = Stats()
+        environment = Environment()
+        
