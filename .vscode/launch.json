@@ -11,16 +11,7 @@
     ]
 }
 
-"""         elif self.state == "mesophase"
-self.growthRate = random.uniform(CELL_MESOPHASE_GROWTH_RATE_MIN, CELL_MESOPHASE_GROWTH_RATE_MAX)
-self.resilience = random.uniform(CELL_MESOPHASE_RESILIENCE_MIN, CELL_MESOPHASE_RESILIENCE_MAX)
-self.perceptionStrength = random.uniform(CELL_MESOPHASE_PERCEPTION_MIN, CELL_MESOPHASE_PERCEPTION_MIN)
-self.speed = random.uniform(CELL_MESOPHASE_SPEED_MIN, CELL_MESOPHASE_SPEED_MAX)
-self.lightEmission = random.uniform(CELL_MESOPHASE_LIGHT_EMISSION_MIN, CELL_MESOPHASE_LIGHT_EMISSION_MIN)
-self.lightAbsorption = random.uniform(CELL_MESOPHASE_LIGHT_ABSORPTION_MIN, CELL_MESOPHASE_LIGHT_ABSORPTION_MAX)
-self.mutationRate = random.uniform(CELL_MESOPHASE_MUTATION_RATE_MIN, CELL_MESOPHASE_MUTATION_RATE_MAX)
-self.lifeExpectancy = self.resilience * random.uniform(CELL_MESOPHASE_DEATH_AGE_MIN, CELL_MESOPHASE_DEATH_AGE_MAX)
-
+"""
 Inert: Acts as decaying "fuel" for other states and facilitates resource transport (like forming rivers or nutrient streams).
 Solid: Becomes more shelter-like, creating "dead zones" or protective barriers while exerting significant force on weaker states.
 Mesophase: Mimics "life-in-progress," transitioning frequently and interacting with most states while remaining unstable.
@@ -28,5 +19,11 @@ Liquid: Highly mobile and adaptive, carrying resources and interacting with all 
 Gas: Spreads signals and energy, enabling communication and environment-wide reactions.
 Plasma: Acts as a "sun cell," causing transformations and high-energy disruptions, acting as the "peak" of interactions.
 
+etcetcetcEnergyMin:
+    if self.state is "inert":
+        inert cells on board lose 
+        self.energy = (self.energy/CELL_INERT_
+    if unbebe part
+    else un-bebe part
 
 """
