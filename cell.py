@@ -39,7 +39,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_PLASMA_DEATH_AGE_MIN, CELL_PLASMA_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_PLASMA_FERTILITY_RATE_MIN, CELL_PLASMA_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_PLASMA_FERTILITY_START_AGE_MIN, CELL_PLASMA_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_PLASMA_FERTILITY_END_AGE_MIN, CELL_PLASMA_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_PLASMA_FERTILITY_END_AGE_MIN, CELL_PLASMA_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_PLASMA_FERTILITY_ENERGY_MIN, CELL_PLASMA_FERTILITY_ENERGY_MAX)
         elif self.state == "gas":
             self.growthRate = random.uniform(CELL_GAS_GROWTH_RATE_MIN, CELL_GAS_GROWTH_RATE_MAX)
@@ -52,7 +52,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_GAS_DEATH_AGE_MIN, CELL_GAS_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_GAS_FERTILITY_RATE_MIN, CELL_GAS_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_GAS_FERTILITY_START_AGE_MIN, CELL_GAS_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_GAS_FERTILITY_END_AGE_MIN, CELL_GAS_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_GAS_FERTILITY_END_AGE_MIN, CELL_GAS_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_GAS_FERTILITY_ENERGY_MIN, CELL_GAS_FERTILITY_ENERGY_MAX)
         elif self.state == "liquid":
             self.growthRate = random.uniform(CELL_LIQUID_GROWTH_RATE_MIN, CELL_LIQUID_GROWTH_RATE_MAX)
@@ -65,7 +65,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_LIQUID_DEATH_AGE_MIN, CELL_LIQUID_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_LIQUID_FERTILITY_RATE_MIN, CELL_LIQUID_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_LIQUID_FERTILITY_START_AGE_MIN, CELL_LIQUID_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_LIQUID_FERTILITY_END_AGE_MIN, CELL_LIQUID_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_LIQUID_FERTILITY_END_AGE_MIN, CELL_LIQUID_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_LIQUID_FERTILITY_ENERGY_MIN, CELL_LIQUID_FERTILITY_ENERGY_MAX)
         elif self.state == "mesophase": # CRYSTALLINE
             self.growthRate = random.uniform(CELL_MESOPHASE_GROWTH_RATE_MIN, CELL_MESOPHASE_GROWTH_RATE_MAX)
@@ -78,7 +78,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_MESOPHASE_DEATH_AGE_MIN, CELL_MESOPHASE_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_MESOPHASE_FERTILITY_RATE_MIN, CELL_MESOPHASE_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_MESOPHASE_FERTILITY_START_AGE_MIN, CELL_MESOPHASE_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_MESOPHASE_FERTILITY_END_AGE_MIN, CELL_MESOPHASE_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_MESOPHASE_FERTILITY_END_AGE_MIN, CELL_MESOPHASE_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_MESOPHASE_FERTILITY_ENERGY_MIN, CELL_MESOPHASE_FERTILITY_ENERGY_MAX)
         elif self.state == "solid": # CRYSTALLINE
             self.growthRate = random.uniform(CELL_SOLID_GROWTH_RATE_MIN, CELL_SOLID_GROWTH_RATE_MAX)
@@ -91,7 +91,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_SOLID_DEATH_AGE_MIN, CELL_SOLID_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_SOLID_FERTILITY_RATE_MIN, CELL_SOLID_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_SOLID_FERTILITY_START_AGE_MIN, CELL_SOLID_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_SOLID_FERTILITY_END_AGE_MIN, CELL_SOLID_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_SOLID_FERTILITY_END_AGE_MIN, CELL_SOLID_FERTILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_SOLID_FERTILITY_ENERGY_MIN, CELL_SOLID_FERTILITY_ENERGY_MAX)
         elif self.state == "inert":
             self.growthRate = random.uniform(CELL_INERT_GROWTH_RATE_MIN, CELL_INERT_GROWTH_RATE_MAX)
@@ -104,7 +104,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_INERT_DEATH_AGE_MIN, CELL_INERT_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_INERT_FERTILITY_RATE_MIN, CELL_INERT_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_INERT_FERTILITY_START_AGE_MIN, CELL_INERT_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_INERT_FERTILITY_END_AGE_MIN, CELL_INERT_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_INERT_FERTILITY_END_AGE_MIN, CELL_INERT_FERTIILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_INERT_FERTILITY_ENERGY_MIN, CELL_INERT_FERTILITY_ENERGY_MAX)
         else:
             self.growthRate = random.uniform(CELL_BASE_GROWTH_RATE_MIN, CELL_BASE_GROWTH_RATE_MAX)
@@ -117,7 +117,7 @@ class Cell:
             self.lifeExpectancy = self.resilience * random.uniform(CELL_BASE_DEATH_AGE_MIN, CELL_BASE_DEATH_AGE_MAX)
             self.fertilityRate = 1 = random.uniform(CELL_BASE_FERTILITY_RATE_MIN, CELL_BASE_FERTILITY_RATE_MAX)
             self.fertilityAgeMin = 10 = random.uniform(CELL_BASE_FERTILITY_START_AGE_MIN, CELL_BASE_FERTILITY_START_AGE_MAX)
-            self.fertilityAgeMax = 80 = random.uniform(CELL_BASE_FERTILITY_END_AGE_MIN, CELL_BASE_FERTIILITY_END_AGE_MIN)
+            self.fertilityAgeMax = 80 = random.uniform(CELL_BASE_FERTILITY_END_AGE_MIN, CELL_BASE_FERTIILITY_END_AGE_MAX)
             self.fertilityEnergyMin = 200 = random.uniform(CELL_BASE_FERTILITY_ENERGY_MIN, CELL_BASE_FERTILITY_ENERGY_MAX)
 
 
