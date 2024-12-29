@@ -18,15 +18,15 @@ class Environment:
         self.inertGrid = np.zeros((GRID_SIZE, GRID_SIZE)) # Fully decayed inerts
 
     # Enrich environment dynamically
-    def enrich_environment(self, lightGrid, waifuGrid, inertGrid):
+    def enrich_environment(self):
         # Brighten some random areas
         for _ in range(ENVIRONMENT_LIGHT_ENRICHMENT_SOURCE_NUM):  # Number of light sources
             x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
-            lightGrid[x, y] = min(lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT, ENVIRONMENT_LIGHT_CLIP_MAX)  # Cap at max brightness
-        lightGrid -= LIGHT_GRID_DECAY_RATE
-        lightGrid = np.clip(lightGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
-        waifuGrid -= ATTRACTIVENESS_GRID_DECAY_RATE
-        inertGrid -= INERT_GRID_DECAY_RATE
+            self.lightGrid[x, y] = min(self.lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT, ENVIRONMENT_LIGHT_CLIP_MAX)  # Cap at max brightness
+        self.lightGrid -= LIGHT_GRID_DECAY_RATE
+        self.lightGrid = np.clip(self.lightGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
+        self.waifuGrid -= ATTRACTIVENESS_GRID_DECAY_RATE
+        self.inertGrid -= INERT_GRID_DECAY_RATE
         #print(lightGrid)
         #print(np.min(lightGrid))
         #print(np.max(lightGrid))
@@ -85,7 +85,7 @@ class Environment:
         return self.setAttractivenessAt(x, y, self.getAttractivenessAt(x, y) + amount)
     
     def setAttractivenessAt(self, x, y, value):
-        self.waifuGrid = min(ENVIRONMENT_ATTRACTIVENESS_CLIP_MAX, max(ENVIRONMENT_ATTRACTIVENESS_CLIP_MIN, value))
+        self.waifuGrid[x, y] = min(ENVIRONMENT_ATTRACTIVENESS_CLIP_MAX, max(ENVIRONMENT_ATTRACTIVENESS_CLIP_MIN, value))
         return self.waifuGrid[x, y] > 0
     
     def getInertAt(self, x, y):
@@ -100,3 +100,32 @@ class Environment:
     def setInertAt(self, x, y, value):
         self.inertGrid[x, y] = value
         return self.inertGrid[x, y] > 0
+    
+    def getCellsAt(self, x, y):
+        return [self.grid[x, y]]
+        # return self.grid[x, y]
+
+    def getCellAt(self, x, y):
+        return self.grid[x, y]
+    
+    def setCellAt(self, x, y, cell):
+        self.grid[x, y] = cell
+
+    def moveCellTo(self, x, y, cell):
+        self.grid[cell.x, cell.y] = None
+        self.grid[x, y] = cell
+        cell.x = x
+        cell.y = y
+
+    def removeCellAt(self, x, y, cell):
+        if self.grid[x, y] == cell:
+            self.setCellAt(x, y, None)
+        else:
+            raise Exception("The cell {cell} isn't located here and can't be removed")
+
+    def removeCellFromGrid(self, cell):
+        self.removeCellAt(cell.x, cell.y, cell)
+
+    def canAddCellAt(self, x, y):
+        return self.grid[x, y] is None or self.grid[x, y] == 0
+        # len(self.grid[x, y]) == 0 or (len(self.grid[x, y]) == 1 and self.grid[x, y][0].state == "gas")

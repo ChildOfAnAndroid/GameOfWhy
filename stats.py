@@ -31,15 +31,21 @@ class Stats:
         self.cellMovedThisTurn = 0
         self.cellPushedThisTurn = 0
         self.cellAliveCount = 0
+        self.cellYouthCount = 0
+        self.cellElderlyCount = 0
+        self.cellAdultCount = 0
 
     def beginTurn(self):
         self.cellBabysThisTurn = 0
         self.cellDeathsThisTurn = {}
         self.cellDeathEscapesThisTurn = 0
         self.cellBabysFailedThisTurn = 0
-        self.cellAliveCount = 0
         self.cellPushedThisTurn = 0
         self.cellMovedThisTurn = 0
+        self.cellAliveCount = 0
+        self.cellYouthCount = 0
+        self.cellElderlyCount = 0
+        self.cellAdultCount = 0
 
     def endTurn(self):
         print(f"Turn Summary: There are currently {self.cellAliveCount} living cells. There were {self.cellBabysThisTurn} babies born, {self.getDeathsThisTurn()} cells died, and {self.cellDeathEscapesThisTurn} cells evaded death! ")
@@ -74,7 +80,7 @@ Cell Death: {self.getDeathsThisTurn()}
 Cell Escapes: {self.cellDeathEscapesThisTurn}
 Cell Movements: {self.cellMovedThisTurn}
 Cell Pushes: {self.cellPushedThisTurn}
-Cells Alive: {self.cellAliveCount}
+Cells Alive: {self.cellAliveCount} (Youth: {self.cellYouthCount}, Adults: {self.cellAdultCount}, Elderly: {self.cellElderlyCount})
 """
 
     def addCellBaby(self):
@@ -116,6 +122,15 @@ Cells Alive: {self.cellAliveCount}
 
     def addCellFailedForcedSpawn(self):
         self.cellFailedForcedSpawnCounter += 1
+
+    def addCellYouth(self):
+        self.cellYouthCount += 1
+    
+    def addCellElderly(self):
+        self.cellElderlyCount += 1
+
+    def addCellAdult(self):
+        self.cellAdultCount += 1
 
     def getTotalDeath(self):
         total = 0

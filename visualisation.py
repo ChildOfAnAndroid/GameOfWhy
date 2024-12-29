@@ -21,9 +21,9 @@ class Visualisation:
         print(f"Step {turn} start visualisation")
         self.ax.clear()
         #ax.imshow(gridSize, alpha=0.5)
-        self.ax.imshow(self.environments.inertGrid, cmap="inertGridColormap", alpha=INERT_GRID_TRANSPARENCY)
+        self.ax.imshow(self.environments.inertGrid, cmap=INERT_GRID_COLORMAP, alpha=INERT_GRID_TRANSPARENCY)
         self.ax.imshow(self.environments.waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY, interpolation="bilinear")
-        self.ax.imshow(self.environments.lightGrid, cmap="lightGridColormap", alpha=LIGHT_GRID_TRANSPARENCY, interpolation="bilinear")
+        self.ax.imshow(self.environments.lightGrid, cmap=LIGHT_GRID_COLORMAP, alpha=LIGHT_GRID_TRANSPARENCY, interpolation="bilinear")
  
         for x in range(self.environments.grid.shape[0]):
             for y in range(self.environments.grid.shape[1]):
@@ -32,9 +32,9 @@ class Visualisation:
                     if cell.alive:
                         self.stats.addCellAlive()
                         try:
-                            self.ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor(top_energy), alpha=cell.get_alpha()))
+                            self.ax.add_patch(plt.Rectangle((cell.y - 0.5, cell.x - 0.5), 1, 1, color=cell.getCellColor(top_energy)))
                         except Exception as e:
-                            print(f"Exception: Color is {cell.get_color(top_energy)} (current energy {cell.energy} top_energy {top_energy}), Alpha is {cell.getCellAlpha()} state: {cell.state} alive: {cell.alive} {cell} ({e})")
+                            print(f"Exception: Color is {cell.getCellColor(top_energy)} (current energy {cell.energy} top_energy {top_energy}) ; state: {cell.state} alive: {cell.alive} {cell} ({e})")
         """
         for organism in organisms:
             if organism.is_alive():
