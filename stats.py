@@ -1,6 +1,9 @@
 # STATS FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+import numpy as np
+import random
+
 class Stats:
     def __init__(self):
         # Population

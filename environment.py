@@ -1,6 +1,9 @@
 # ENVIRONMENT FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+import numpy as np
+import random
+
 class Environment:
     # Create grid and environment
     def environmentGeneration():

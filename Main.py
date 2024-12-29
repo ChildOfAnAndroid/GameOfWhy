@@ -1,14 +1,12 @@
 # MAIN FILE: GAME OF WHY
 # CHARIS CAT 2024
 
-import numpy as np
-import matplotlib.pyplot as plt
-import random
-import matplotlib.patches as mpatches
-from matplotlib.colors import hsv_to_rgb
-from functools import partial
-from scipy.ndimage import gaussian_filter
-from matplotlib.colors import LinearSegmentedColormap
+from automaton import *
+from cell import *
 from config import *
+from environment import *
+from organism import *
+from stats import *
+from visualisation import *
 
 class Main:

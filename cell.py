@@ -1,6 +1,10 @@
 # CELL CLASS FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+from matplotlib.colors import hsv_to_rgb
+import numpy as np
+import random
+
 class Cell:
     def __init__(self, x, y, stats, organism=None):
         self.id = stats.getCellNextID()

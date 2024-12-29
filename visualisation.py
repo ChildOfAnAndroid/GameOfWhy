@@ -1,6 +1,14 @@
 # VISUALISATION FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+from scipy.ndimage import gaussian_filter
+from matplotlib.colors import LinearSegmentedColormap
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from functools import partial
+import numpy as np
+import random
+
 class Visualisation:
     # Visualization and Interaction
     plt.ion()

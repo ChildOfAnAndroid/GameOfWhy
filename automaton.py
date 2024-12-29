@@ -1,6 +1,9 @@
 # AUTOMATON SIMULATION FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+import numpy as np
+import random
+
 class Automaton:
     cells = []
     stats = Stats()
