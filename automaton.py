@@ -1,3 +1,6 @@
+# AUTOMATON SIMULATION FILE: GAME OF WHY
+# CHARIS CAT 2024
+
 class Automaton:
     cells = []
     stats = Stats()

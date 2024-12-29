@@ -1,3 +1,6 @@
+# VISUALISATION FILE: GAME OF WHY
+# CHARIS CAT 2024
+
 class Visualisation:
     # Visualization and Interaction
     plt.ion()

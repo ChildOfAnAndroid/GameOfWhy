@@ -1,3 +1,6 @@
+# CELL CLASS FILE: GAME OF WHY
+# CHARIS CAT 2024
+
 class Cell:
     def __init__(self, x, y, stats, organism=None):
         self.id = stats.getCellNextID()

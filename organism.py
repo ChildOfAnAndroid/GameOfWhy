@@ -1,3 +1,6 @@
+# ORGANISM CLASS FILE: GAME OF WHY
+# CHARIS CAT 2024
+
 class Organism:
     def __init__(self, organism_id):
         self.organism_id = organism_id

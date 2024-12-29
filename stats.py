@@ -1,3 +1,6 @@
+# STATS FILE: GAME OF WHY
+# CHARIS CAT 2024
+
 class Stats:
     def __init__(self):
         # Population

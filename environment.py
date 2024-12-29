@@ -1,3 +1,6 @@
+# ENVIRONMENT FILE: GAME OF WHY
+# CHARIS CAT 2024
+
 class Environment:
     # Create grid and environment
     def environmentGeneration():

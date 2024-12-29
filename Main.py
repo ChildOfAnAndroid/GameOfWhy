@@ -11,3 +11,4 @@ from scipy.ndimage import gaussian_filter
 from matplotlib.colors import LinearSegmentedColormap
 from config import *
 
+class Main:
