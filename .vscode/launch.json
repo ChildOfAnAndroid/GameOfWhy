@@ -18,28 +18,4 @@ Mesophase: Mimics "life-in-progress," transitioning frequently and interacting w
 Liquid: Highly mobile and adaptive, carrying resources and interacting with all states to create flow and structure.
 Gas: Spreads signals and energy, enabling communication and environment-wide reactions.
 Plasma: Acts as a "sun cell," causing transformations and high-energy disruptions, acting as the "peak" of interactions.
-
-etcetcetcEnergyMin:
-    if self.state is "inert":
-        self.energy -= (self.age/self.energy)
-        if self.energy <= 0:
-            self.alive = False
-            cellDisintegrationDeathCount += 1
-            cellDisinntegrationCount += 1
-        else:
-            cellDisintegrationCount += 1
-    else
-        
-    if unbebe part
-    else un-bebe part
-
-
-if self.state != "plasma":
-    cellStateNew += 1
-    cellStatePlasmaNew += 1
-else:
-    cellStateStable += 1
-    HUE
-    ALPHA etc
-return (LINES 304-328 CELL)
 """
