@@ -43,11 +43,10 @@ class Main:
 
             # Early exit condition: nothing is alive anymore
             if not self.environments.isAlive():
-                print("The environment has died off.")
-                self.visualisation.endRun(turn)
-                break
+                print("All cells have become inert. You may want to... leave now.")
         
         self.stats.endRun()
+        self.visualisation.endRun(NUM_STEPS)
 
 
 # Set it to auto-run this file

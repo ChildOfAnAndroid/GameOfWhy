@@ -252,22 +252,19 @@ INERT_GRID_TRANSPARENCY = 0.8
 ATTRACTIVENESS_GRID_TRANSPARENCY = 0.6
 LIGHT_GRID_TRANSPARENCY = 0.6
 
-# Define RGBA colors for the gradient: transparent -> green -> brown
+
 colors = [
     (0, 0, 0, 0),      # transparent
     (0.1, 0.3, 0.1, 1),  # green
     (0.4, 0.3, 0.2, 1),  # brown
     (0.2, 0.2, 0.2, 1)   # grey
 ]
-
-# Create the colormap
-terrain_colormap = LinearSegmentedColormap.from_list("terrain_colormap", colors)
+INERT_GRID_COLORMAP = LinearSegmentedColormap.from_list("inertGridColormap", colors)
 
 colors = [
         (0.0, (1, 1, 1, 0)),
         (0.3, (0.5, 0.1, 0.5, 0.2)),
         (0.7, (1.0, 0.5, 0.0, 0.6)),
         (1.0, (1.0, 1.0, 0.0, 0.8)),
-    ]
-    
-purple_yellow_colormap = LinearSegmentedColormap.from_list("purple_yellow", colors)
+    ]    
+LIGHT_GRID_COLORMAP = LinearSegmentedColormap.from_list("lightGridColormap", colors)
