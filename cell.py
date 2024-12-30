@@ -249,6 +249,7 @@ class Cell:
                     self.environment.moveCellTo(abs(new_x), abs(new_y), self)
                     self.stats.addCellMove()
                     self.memory.append((self.turnCount, f"Moved to signal {maxSignal}", (new_x, new_y)))
+                    break
             
             blockCounter += 1
             print(f"Cell {self.id} blocked. Attempt {blockCounter}/{maxMoveAttempts}")  # Debug

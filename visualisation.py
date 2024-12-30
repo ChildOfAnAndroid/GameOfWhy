@@ -21,10 +21,11 @@ class Visualisation:
         print(f"Step {turn} start visualisation")
         self.ax.clear()
         #ax.imshow(gridSize, alpha=0.5)
-        #self.ax.imshow(self.environments.inertGrid, cmap=INERT_GRID_COLORMAP, alpha=INERT_GRID_TRANSPARENCY, interpolation = "bilinear")
-        #self.ax.imshow(self.environments.waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY, interpolation="bilinear")
-        #self.ax.imshow(self.environments.lightGrid, cmap=LIGHT_GRID_COLORMAP, interpolation="bilinear")
-        self.ax.imshow(self.environments.signalGrid, cmap="RdBu")
+        self.ax.imshow(self.environments.signalGrid, cmap="RdBu", alpha=0.2)
+        self.ax.imshow(self.environments.inertGrid, cmap=INERT_GRID_COLORMAP, alpha=INERT_GRID_TRANSPARENCY, interpolation = "bilinear")
+        self.ax.imshow(self.environments.waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY, interpolation="bilinear")
+        self.ax.imshow(self.environments.lightGrid, cmap=LIGHT_GRID_COLORMAP, interpolation="bilinear")
+
  
         for x in range(self.environments.grid.shape[0]):
             for y in range(self.environments.grid.shape[1]):

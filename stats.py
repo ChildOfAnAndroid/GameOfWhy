@@ -233,3 +233,12 @@ Stable Cell States: {self.cellStateStableThisTurn}
             self.cellStateChangeThisTurn[newState] += 1
         else:
             self.cellStateChangeThisTurn[newState] = 1
+
+    def getHeightAt(self, x, y):
+        x, y = self._boundXY((x, y))
+        return self.heightGrid[x, y]
+
+    def addHeightAt(self, x, y, amount):
+        x, y = self._boundXY((x, y))
+        self.heightGrid[x, y] += amount
+        return self.heightGrid[x, y]

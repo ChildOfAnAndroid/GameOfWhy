@@ -111,7 +111,7 @@ def run_simulation_and_log(main_class, output_file="simulation_metrics.log"):
                     }
 
                     # Track movement patterns
-                    previous_position = getattr(cell, 'previousPosition', (x, y))
+                    previous_position = getattr(cell, 'previousPosition', (-1, -1))
                     if previous_position != (x, y):
                         turn_data["movement_logs"].append({
                             "id": cell.id,
