@@ -1,9 +1,6 @@
 # STATS FILE: GAME OF WHY
 # CHARIS CAT 2024
 
-import numpy as np
-import random
-
 class Stats:
     def __init__(self):
         # Population
@@ -61,7 +58,7 @@ class Stats:
         self.cellStateChangeThisTurn = {}
 
     def endTurn(self):
-        print(f"Turn Summary: There are currently {self.cellAliveCount} living cells. There were {self.cellBabysThisTurn} babies born, {self.getDeathsThisTurn()} cells died, and {self.cellDeathEscapesThisTurn} cells evaded death! ")
+        print(f"Turn Summary: There are currently {self.cellAliveCount} living cells. There were {self.getBabysCountThisTurn()} babies born, {self.getDeathsThisTurn()} cells died, and {self.cellDeathEscapesThisTurn} cells evaded death! ")
         print(self)
 
     def endRun(self):
@@ -214,6 +211,12 @@ Stable Cell States: {self.cellStateStableThisTurn}
             sum += self.cellStateChangeThisTurn[reason]
         return sum
 
+    def getBabysCountThisTurn(self):
+        sum = 0 
+        for kind in self.cellBabysThisTurn:
+            sum += self.cellBabysThisTurn[kind]
+        return sum
+
     def getCellNextID(self):
         ret = self.cellCounter
         self.cellCounter += 1
@@ -234,11 +237,3 @@ Stable Cell States: {self.cellStateStableThisTurn}
         else:
             self.cellStateChangeThisTurn[newState] = 1
 
-    def getHeightAt(self, x, y):
-        x, y = self._boundXY((x, y))
-        return self.heightGrid[x, y]
-
-    def addHeightAt(self, x, y, amount):
-        x, y = self._boundXY((x, y))
-        self.heightGrid[x, y] += amount
-        return self.heightGrid[x, y]

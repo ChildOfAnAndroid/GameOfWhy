@@ -1,6 +1,8 @@
 # CONFIG FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+from datetime import datetime
+from enum import Enum
 import random
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -9,6 +11,14 @@ from matplotlib.colors import LinearSegmentedColormap
 GRID_SIZE = 100
 NUM_STEPS = 10000
 CELL_BASE_COUNT = 100 #50
+
+class CellState(Enum):
+    PLASMA = "plasma"
+    GAS = "gas"
+    LIQUID = "liquid"
+    MESOPHASE = "mesophase"
+    SOLID = "solid"
+    INERT = "inert"
 
 # phase transition boundaries
 CELL_STATE_PLASMA_ENERGY = 250
@@ -378,3 +388,12 @@ INERT_GRID_COLORMAP = LinearSegmentedColormap.from_list("inertGridColormap", [
     (0.2, 0.2, 0.2, 1)   # grey
 ])
 
+VISUALISATION_OUTPUT_FILE_SAVE_EVERY_N_TURNS = False # Save the main screen output as a file every N turns
+VISUALISATION_OUTPUT_FILE_SAVE_FINAL_TURN = False # Save the final screen as a file
+VISUALISATION_OUTPUT_FILE_SAVE_FORMAT = "png" # File format
+VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER = "visualisations"
+VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER = f"{datetime.now().isoformat(timespec="seconds")}"
+VISUALISATION_OUTPUT_SCREEN_DISABLE = False # Disable main screen output
+VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN = 1 # Update the main screen output every N turns
+
+CELL_MEMORY_DISPLAY_MODE = "event" # Display memory by event type (event) or turn order (turn) 

@@ -1,4 +1,3 @@
-import os
 import json
 from config import NUM_STEPS  # Import NUM_STEPS from the config
 from cell import Cell  # Import the Cell class to resolve NameError
@@ -57,13 +56,10 @@ def run_simulation_and_log(main_class, output_file="simulation_metrics.log"):
         }
 
         # Step the simulation forward
-        if hasattr(simulation, 'run') and callable(getattr(simulation, 'run')):
-            simulation.stats.beginTurn()
-            simulation.environments.runLoop(turn)
-            simulation.automaton.runLoop(turn)
-            simulation.stats.endTurn()
+        if hasattr(simulation, 'runLoop') and callable(getattr(simulation, 'runLoop')):
+            simulation.runLoop(turn)
         else:
-            print("Error: The Main class does not define a 'run()' method.")
+            print("Error: The Main class does not define a 'runLoop()' method.")
             break
 
         # Log cell energy data

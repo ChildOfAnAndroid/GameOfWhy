@@ -28,14 +28,14 @@ class Environment:
                 # Base signal from light and waifu grids
                 baseSignal = (self.lightGrid[x, y] * LIGHT_GRID_IMPORTANCE) + (self.waifuGrid[x, y] * ATTRACTIVENESS_GRID_IMPORTANCE) + (self.inertGrid[x, y] * INERT_GRID_IMPORTANCE)
 
-                if cell is None or cell == 0 or cell == "gas":
+                if cell is None or cell == 0 or cell == CellState.GAS:
                     # Empty or passable space, keep base signal
                     self.signalGrid[x, y] = baseSignal
                 elif isinstance(cell, Cell):
                     # Occupied by a cell: factor in cell attributes
                     cellSignal = baseSignal
                     cellSignal -= cell.resilience * 0.1
-                    if cell.state == "liquid":
+                    if cell.state == CellState.LIQUID:
                         cellSignal += random.uniform(0.5,2)
                     cellSignal += cell.lightEmission * 1.2
                     self.signalGrid[x, y] = cellSignal
@@ -171,3 +171,12 @@ class Environment:
         x, y = self._boundXY((x, y))
         return self.grid[x, y] is None or self.grid[x, y] == 0
         # len(self.grid[x, y]) == 0 or (len(self.grid[x, y]) == 1 and self.grid[x, y][0].state == "gas")
+
+    def getHeightAt(self, x, y):
+        x, y = self._boundXY((x, y))
+        return self.heightGrid[x, y]
+
+    def addHeightAt(self, x, y, amount):
+        x, y = self._boundXY((x, y))
+        self.heightGrid[x, y] += amount
+        return self.heightGrid[x, y]

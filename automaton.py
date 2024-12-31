@@ -1,7 +1,6 @@
 # AUTOMATON SIMULATION FILE: GAME OF WHY
 # CHARIS CAT 2024
 
-import numpy as np
 import random
 from config import *
 from cell import *

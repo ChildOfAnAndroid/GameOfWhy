@@ -35,16 +35,20 @@ class Main:
 
     def run(self):
         for turn in range(NUM_STEPS):
-            self.stats.beginTurn()
-            self.environments.runLoop(turn)
-            self.visualisation.runLoop(turn)
-            self.automaton.runLoop(turn)
-            self.stats.endTurn()
+            self.runLoop(turn)
         
         self.stats.endRun()
         self.visualisation.endRun(NUM_STEPS)
 
+    def runLoop(self, turn):
+        self.stats.beginTurn()
+        self.environments.runLoop(turn)
+        self.visualisation.runLoop(turn)
+        self.automaton.runLoop(turn)
+        self.stats.endTurn()
+
 
 # Set it to auto-run this file
-main = Main()
-main.run()
+if __name__ == "__main__":
+    main = Main()
+    main.run()
