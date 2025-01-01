@@ -22,9 +22,9 @@ class Visualisation:
             if not isdir(f"{VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER}/{VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER}/"):
                 makedirs(f"{VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER}/{VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER}/")
 
-    def runLoop(self, turn):
+    def runLoop(self, turn, end=False):
         print(f"Step {turn} start visualisation")
-        if self.needRender(turn):
+        if self.needRender(turn, end):
             self.ax.clear()
             #ax.imshow(gridSize, alpha=0.5)
             self.ax.imshow(self.environments.signalGrid, cmap="RdBu", alpha=0.2)
@@ -89,15 +89,14 @@ class Visualisation:
         if not VISUALISATION_OUTPUT_SCREEN_DISABLE:
             exitAfter = 60
             for seconds in range(exitAfter):
-                self.ax.set_title(f"Final step {turn}, no alive cell. Ending simulation in {exitAfter - seconds}")
+                self.ax.set_title(f"Final step {turn},. Ending simulation in {exitAfter - seconds}")
                 plt.pause(1.0)
             plt.ioff()
     
-    def needRender(self, turn):
-        return not VISUALISATION_OUTPUT_SCREEN_DISABLE or \
-            turn % VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN == 0 or \
-            self.needSave(turn, False) or \
-            self.needSave(turn, True)
+    def needRender(self, turn, end):
+        return (not VISUALISATION_OUTPUT_SCREEN_DISABLE and \
+            turn % VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN == 0 ) or \
+            self.needSave(turn, end)
 
     def needSave(self, turn, end):
         return (VISUALISATION_OUTPUT_FILE_SAVE_EVERY_N_TURNS and (turn % VISUALISATION_OUTPUT_FILE_SAVE_EVERY_N_TURNS == 0)) or \

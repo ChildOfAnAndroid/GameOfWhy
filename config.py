@@ -399,6 +399,90 @@ VISUALISATION_OUTPUT_FILE_SAVE_FORMAT = "png" # File format
 VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER = "visualisations"
 VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER = f"{datetime.now().isoformat(timespec="seconds")}"
 VISUALISATION_OUTPUT_SCREEN_DISABLE = False # Disable main screen output
-VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN = 1 # Update the main screen output every N turns
+VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN = 100 # Update the main screen output every N turns
 
 CELL_MEMORY_DISPLAY_MODE = "event" # Display memory by event type (event) or turn order (turn) 
+
+RECORDER_PRINT_TO_STDOUT = False
+RECORDER_PRINT_TO_FILE = True
+
+RECORDER_STATS_DEFINITION = [
+    {
+        "stat": "id",
+        "display": False,
+        "prefix": ""
+    }, {
+        "stat": "age",
+        "display": False
+    }, {
+        "stat": "position",
+        "name": "Position (x, y)",
+        "record": lambda cell, isBirth: f"({cell.x}, {cell.y})"
+    }, {
+        "stat": "state",
+        "record": lambda cell, isBirth: cell.state.value
+    }, {
+        "stat": "energy",
+        "display": ".2f"
+    }, {
+        "stat": "mass",
+        "display": ".2f"
+    }, {
+        "stat": "height",
+        "display": ".2f"
+    }, {
+        "stat": "cellEnergyRecord",
+        "name": "Highest Energy",
+        "display": ".2f"
+    }, {
+        "stat": "turnCount",
+        "name": "Epoque"
+    }, {
+        "stat": "role"
+    }, {
+        "stat": "attractiveness",
+        "display": ".2f"
+    }, {
+        "stat": "growthDecayRate",
+        "display": ".2f"
+    }, {
+        "stat": "luck",
+        "display": ".2f"
+    }, {
+        "stat": "growthRate",
+        "display": ".2f"
+    }, {
+        "stat": "resilience",
+        "display": ".2f"
+    }, {
+        "stat": "perceptionStrength",
+        "display": ".2f"
+    }, {
+        "stat": "speed",
+        "display": ".2f"
+    }, {
+        "stat": "lightEmission",
+        "display": ".2f"
+    }, {
+        "stat": "lightAbsorption",
+        "display": ".2f"
+    }, {
+        "stat": "mutationRate",
+        "display": ".2f"
+    }, {
+        "stat": "lifeExpectancy",
+        "display": ".0f"
+    }, {
+        "stat": "fertilityRate",
+        "display": ".2f"
+    }, {
+        "stat": "fertilityAge",
+        "record": lambda cell, isBirth: f"{cell.fertilityAgeMin:.0f} - {cell.fertilityAgeMax:.0f}"
+    }, {
+        "stat": "fertilityEnergyMin",
+        "name": "Energy for reproduction",
+        "display": ".2f"
+    }, {
+        "stat": "hue"
+    }
+]

@@ -32,20 +32,23 @@ class Main:
         self.environments = Environment(self.stats)
         self.automaton = Automaton(self.stats, self.environments)
         self.visualisation = Visualisation(self.stats, self.environments)
+        self.simulationRecorder = SimulationRecorder()
 
     def run(self):
-        for turn in range(NUM_STEPS):
-            self.runLoop(turn)
+        for turn in range(NUM_STEPS+1):
+            self.runLoop(turn, turn == NUM_STEPS)
         
         self.stats.endRun()
         self.visualisation.endRun(NUM_STEPS)
+        self.simulationRecorder.end()
 
-    def runLoop(self, turn):
+    def runLoop(self, turn, end):
         self.stats.beginTurn()
         self.environments.runLoop(turn)
-        self.visualisation.runLoop(turn)
+        self.visualisation.runLoop(turn, end=end)
         self.automaton.runLoop(turn)
         self.stats.endTurn()
+        self.simulationRecorder.endTurn()
 
 
 # Set it to auto-run this file

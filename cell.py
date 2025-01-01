@@ -4,10 +4,7 @@
 from matplotlib.colors import hsv_to_rgb
 import random
 from config import *
-
-cellElderCount = 0
-cellYouthCount = 0
-cellAdultCount = 0
+from simulation_recorder import SimulationRecorder
 
 class Cell:
     topEnergy = 1
@@ -37,18 +34,9 @@ class Cell:
 
         if parent is None:
             self.spawnNew()
-            self.saveBirthStats()
         else:
             self.spawnChild(parent)
-            self.saveBirthStats()
-
-    def saveBirthStats(self):
-        onBirthStats = (f"\n Hey, Cell {self.id} here. Just passing on my birth certificate! Born to {self.parent} on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
-            
-        with open("birthDeathStats.txt", "a") as file:
-            file.write(onBirthStats + "\n")
-
-        print(f"Cell {self.id} birth written to birthDeathStats.txt successfully!")
+        SimulationRecorder().recordBirth(self)
         
     def spawnNew(self):
         self.turnCount = 0
@@ -618,61 +606,7 @@ class Cell:
         if self.alive == False and self.previousAlive == True:
             self.previousAlive = False
 
-            onDeathStats = (f"\n Hey, Cell {self.id} here. Just passing on my memoir... Died at: {self.age}, on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
-            
-            with open("birthDeathStats.txt", "a") as file: # a is append! :)
-                file.write(onDeathStats + "\n")
-
-            print(f"Cell {self.id} death written to birthDeathStats.txt successfully!")
-
-            """ if CELL_MEMORY_DISPLAY_MODE == "event":
-                summary = {}
-
-                for memory_entry in self.memory:
-                    if len(memory_entry) == 3:
-                        turn_count, memory_type, details = memory_entry
-                    elif len(memory_entry) == 2:
-                        turn_count, memory_type = memory_entry
-                        details = None
-                    else:
-                        print(f"Unexpected memory format: {memory_entry}")
-                        continue
-
-                    # Aggregate memory by type
-                    if memory_type not in summary:
-                        summary[memory_type] = []
-                    summary[memory_type].append({
-                        "turn": turn_count,
-                        "details": details})
-
-                # Output the summary
-                print("Memory Summary:")
-                for memory_type, entries in summary.items():
-                    print(f"{memory_type}:")
-                    for entry in entries:
-                        if entry["details"] is None:
-                            print(f"  Turn {entry['turn']}")
-                        else:
-                            print(f"  Turn {entry['turn']}: {entry['details']}")
-            elif CELL_MEMORY_DISPLAY_MODE == "turn":
-                last_turn = -1
-                for memory_entry in self.memory:
-                    if len(memory_entry) == 3:
-                        turn_count, memory_type, details = memory_entry
-                    elif len(memory_entry) == 2:
-                        turn_count, memory_type = memory_entry
-                        details = None
-                    else:
-                        print(f"Unexpected memory format: {memory_entry}")
-                        continue
-                    if turn_count > last_turn:
-                        last_turn = turn_count
-                        print(f"On Turn {turn_count}:")
-                    if details is None:
-                        print(f"  {memory_type}")
-                    else:
-                        print(f"  {memory_type}: {details}") """
-
+            SimulationRecorder().recordDeath(self)
 
     def runLoop(self, turn):
         self.turnCount = turn
@@ -685,4 +619,3 @@ class Cell:
         self.decay()
         self.waifuSignal()
         self.summarizeMemory()
-
