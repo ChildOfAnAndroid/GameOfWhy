@@ -167,7 +167,7 @@ class Cell:
     
     def spawnChild(self, parent):
         self.turnCount = parent.turnCount - 1 # Set it as eligible for a turn, i guess
-        self.energy = max(0.001,((random.uniform(CELL_BASE_ENERGY_MIN, CELL_BASE_ENERGY_MAX) * parent.energy) / 2) * parent.mutationRate/100) # Starting energy level
+        self.energy = max(0.001,min(1000,(((random.uniform(CELL_BASE_ENERGY_MIN, CELL_BASE_ENERGY_MAX))/2)+((parent.energy)/2)) * parent.mutationRate/50)) # Starting energy level
         self.phaseTransition()
         match self.state:
             case CellState.PLASMA:
