@@ -490,6 +490,7 @@ class Cell:
             return False
         if self.age < self.fertilityAgeMin:
             self.stats.addCellYouth()
+            self.memory.append((self.turnCount, "I'm just a kid!"))
             return False
         self.stats.addCellAdult()
         if self.energy < self.fertilityEnergyMin:
@@ -548,25 +549,30 @@ class Cell:
     def decay(self):
         if not self.alive:
             return
-        self.energy -= random.uniform(0.95, 1.05) * (CELL_DECAY_ENERGY_MULTIPLIER * (((self.age - self.resilience) * self.speed)/100))  # Energy loss increases with speed
-        self.age += CELL_DECAY_AGE_PER_TURN
-        self.growthRate -= random.uniform(0.95, 1.05) * self.growthDecayRate
-        self.lifeExpectancy = random.uniform(0.95, 1.05) * random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)
+        self.energy -= random.uniform(0.95, 1.05) * (self.energy/CELL_DECAY_ENERGY_MULTIPLIER)
+        self.age += random.uniform(0.99, 1.01) * CELL_DECAY_AGE_PER_TURN
+        self.growthRate -= random.uniform(0.95, 1.05) * (self.growthRate/self.growthDecayRate)
+        self.lifeExpectancy = min((self.lifeExpectancy),(random.uniform(0.95, 1.05) * random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)))
         self.attractiveness = random.uniform(0.95, 1.05) * ((self.energy*(CELL_ATTRACTIVENESS_NORM_ENERGY))+ \
                                                             (self.age*(CELL_ATTRACTIVENESS_NORM_AGE))+ \
                                                             (self.growthRate*CELL_ATTRACTIVENESS_NORM_GROWTH)+ \
                                                             (self.resilience*CELL_ATTRACTIVENESS_NORM_RESILIENCE)+ \
                                                             (self.perceptionStrength*CELL_ATTRACTIVENESS_NORM_STRENGTH)+ \
                                                             (self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+ \
-                                                            (self.lightEmission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION))/7
+                                                            (self.lightEmission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION) + \
+                                                            (self.mutationRate*CELL_ATTRACTIVENESS_NORM_MUTATION_RATE) + \
+                                                            (self.lifeExpectancy)*CELL_ATTRACTIVENESS_NORM_LIFE_EXPECTANCY) + \
+                                                            (self.mass)*CELL_ATTRACTIVENESS_NORM_MASS + \
+                                                            (self.height)*CELL_ATTRACTIVENESS_NORM_HEIGHT/11
         if self.attractiveness > self.CellAttractivenessTopRecord:
             self.CellAttractivenessTopRecord = self.attractiveness
+            self.lifeExpectancyMax += self.lifeExpectancyMax/100
         if self.energy > self.topEnergy:
             self.topEnergy = self.energy
-        if self.energy >= self.cellEnergyRecord * (random.uniform(0.9, 1.1) * CELL_DECAY_TOP_ENERGY_EXCESS):
+        if self.energy >= self.cellEnergyRecord * random.uniform(0.9, 1.1):
             self.cellEnergyRecord = self.energy
             self.topEnergyDecay = self.cellEnergyRecord - ((self.cellEnergyRecord/100) * CELL_DECAY_TOP_ENERGY_MULTIPLIER)
-            self.energy = self.topEnergyDecay
+            self.energy -= self.topEnergyDecay
             self.memory.append((self.turnCount, "Fuck, being this cool is too hard, I lost energy", self.topEnergyDecay))
             self.topEnergyDecay = 0
         #print(f"Rated {self.attractiveness}% hot")
