@@ -183,25 +183,25 @@ class Cell:
         self.phaseTransition()
         match self.state:
             case CellState.PLASMA:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_PLASMA_MUTATION_RATE_MIN, CELL_PLASMA_MUTATION_RATE_MAX)), parent.mutationRate))
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_PLASMA_MUTATION_RATE_MIN, CELL_PLASMA_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_PLASMA_COLOR_MIN, CELL_STATE_PLASMA_COLOR_MAX), parent.hue)
             case CellState.GAS:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_GAS_MUTATION_RATE_MIN, CELL_GAS_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_GAS_MUTATION_RATE_MIN, CELL_GAS_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_GAS_COLOR_MIN, CELL_STATE_GAS_COLOR_MAX), parent.hue)
             case CellState.LIQUID:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_LIQUID_MUTATION_RATE_MIN, CELL_LIQUID_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_LIQUID_MUTATION_RATE_MIN, CELL_LIQUID_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_LIQUID_COLOR_MIN, CELL_STATE_LIQUID_COLOR_MAX), parent.hue)
             case CellState.MESOPHASE:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_MESOPHASE_MUTATION_RATE_MIN, CELL_MESOPHASE_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_MESOPHASE_MUTATION_RATE_MIN, CELL_MESOPHASE_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_MESOPHASE_COLOR_MIN, CELL_STATE_MESOPHASE_COLOR_MAX), parent.hue)
             case CellState.SOLID:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_SOLID_MUTATION_RATE_MIN, CELL_SOLID_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_SOLID_MUTATION_RATE_MIN, CELL_SOLID_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_SOLID_COLOR_MIN, CELL_STATE_SOLID_COLOR_MAX), parent.hue)
             case CellState.INERT:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_INERT_MUTATION_RATE_MIN, CELL_INERT_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_INERT_MUTATION_RATE_MIN, CELL_INERT_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_INERT_COLOR_MIN, CELL_STATE_INERT_COLOR_MAX), parent.hue)
             case _:
-                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_BASE_MUTATION_RATE_MIN, CELL_BASE_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_BASE_MUTATION_RATE_MIN, CELL_BASE_MUTATION_RATE_MAX)), parent.mutationRate)))
                 self.hue = random.uniform(random.uniform(CELL_STATE_BASE_COLOR_MIN, CELL_STATE_BASE_COLOR_MAX), parent.hue)
                 self.stats.addCellStateChange("???")
         # TODO: Make the alterations here
