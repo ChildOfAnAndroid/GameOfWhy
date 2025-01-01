@@ -21,6 +21,7 @@ class Cell:
         self.age = 0  # cell age (in turns)
         self.role = "general"  # Role of the cell: general, structural, sensory, reproductive
         self.organism = organismCheck  # Tracks which organism this cell belongs to
+        self.parent = parent
         self.stats = stats
         self.attractiveness = CELL_BASE_ATTRACTIVENESS_MIN
         self.growthDecayRate = CELL_BASE_GROWTH_DECAY_RATE
@@ -29,8 +30,10 @@ class Cell:
         self.memory = []
         self.previousAlive = 0
         self.topEnergyDecay = 0
-        self.luck = 0
+        self.luck = 0 # UNIMPLEMENTED: range -100 to 100
         self.cellEnergyRecord = 0
+
+        # random.choices([-1, 1], weights = [(self.luck + 100)/200), (1-((self.luck + 100)/200)]) # Luck (assuming scaled -100 to 100) and a random chance weight the + or - choice
 
         if parent is None:
             self.spawnNew()
@@ -40,7 +43,7 @@ class Cell:
             self.saveBirthStats()
 
     def saveBirthStats(self):
-        onBirthStats = (f"\n Hey, Cell {self.id} here. Just passing on my birth certificate! Born on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
+        onBirthStats = (f"\n Hey, Cell {self.id} here. Just passing on my birth certificate! Born to {self.parent} on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
             
         with open("birthDeathStats.txt", "a") as file:
             file.write(onBirthStats + "\n")
@@ -180,51 +183,50 @@ class Cell:
         self.phaseTransition()
         match self.state:
             case CellState.PLASMA:
-                self.mutationRate = random.uniform((random.uniform(CELL_PLASMA_MUTATION_RATE_MIN, CELL_PLASMA_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_PLASMA_MUTATION_RATE_MIN, CELL_PLASMA_MUTATION_RATE_MAX)), parent.mutationRate))
                 self.hue = random.uniform(random.uniform(CELL_STATE_PLASMA_COLOR_MIN, CELL_STATE_PLASMA_COLOR_MAX), parent.hue)
             case CellState.GAS:
-                self.mutationRate = random.uniform((random.uniform(CELL_GAS_MUTATION_RATE_MIN, CELL_GAS_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_GAS_MUTATION_RATE_MIN, CELL_GAS_MUTATION_RATE_MAX)), parent.mutationRate)
                 self.hue = random.uniform(random.uniform(CELL_STATE_GAS_COLOR_MIN, CELL_STATE_GAS_COLOR_MAX), parent.hue)
             case CellState.LIQUID:
-                self.mutationRate = random.uniform((random.uniform(CELL_LIQUID_MUTATION_RATE_MIN, CELL_LIQUID_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_LIQUID_MUTATION_RATE_MIN, CELL_LIQUID_MUTATION_RATE_MAX)), parent.mutationRate)
                 self.hue = random.uniform(random.uniform(CELL_STATE_LIQUID_COLOR_MIN, CELL_STATE_LIQUID_COLOR_MAX), parent.hue)
             case CellState.MESOPHASE:
-                self.mutationRate = random.uniform((random.uniform(CELL_MESOPHASE_MUTATION_RATE_MIN, CELL_MESOPHASE_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_MESOPHASE_MUTATION_RATE_MIN, CELL_MESOPHASE_MUTATION_RATE_MAX)), parent.mutationRate)
                 self.hue = random.uniform(random.uniform(CELL_STATE_MESOPHASE_COLOR_MIN, CELL_STATE_MESOPHASE_COLOR_MAX), parent.hue)
             case CellState.SOLID:
-                self.mutationRate = random.uniform((random.uniform(CELL_SOLID_MUTATION_RATE_MIN, CELL_SOLID_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_SOLID_MUTATION_RATE_MIN, CELL_SOLID_MUTATION_RATE_MAX)), parent.mutationRate)
                 self.hue = random.uniform(random.uniform(CELL_STATE_SOLID_COLOR_MIN, CELL_STATE_SOLID_COLOR_MAX), parent.hue)
             case CellState.INERT:
-                self.mutationRate = random.uniform((random.uniform(CELL_INERT_MUTATION_RATE_MIN, CELL_INERT_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_INERT_MUTATION_RATE_MIN, CELL_INERT_MUTATION_RATE_MAX)), parent.mutationRate)
                 self.hue = random.uniform(random.uniform(CELL_STATE_INERT_COLOR_MIN, CELL_STATE_INERT_COLOR_MAX), parent.hue)
             case _:
-                self.mutationRate = random.uniform((random.uniform(CELL_BASE_MUTATION_RATE_MIN, CELL_BASE_MUTATION_RATE_MAX)), parent.mutationRate)
+                self.mutationRate = max(-100,min(100,random.uniform((random.uniform(CELL_BASE_MUTATION_RATE_MIN, CELL_BASE_MUTATION_RATE_MAX)), parent.mutationRate)
                 self.hue = random.uniform(random.uniform(CELL_STATE_BASE_COLOR_MIN, CELL_STATE_BASE_COLOR_MAX), parent.hue)
                 self.stats.addCellStateChange("???")
         # TODO: Make the alterations here
-        self.growthRate = (parent.growthRate/100) * self.mutationRate
-        self.resilience = (parent.resilience/100) * self.mutationRate
-        self.perceptionStrength = (parent.perceptionStrength/100) * self.mutationRate
-        self.speed = (parent.speed/100) * self.mutationRate
+
+        self.mutateProp(["growthRate",
+                        "resilience",
+                        "perceptionStrength",
+                        "speed",
+                        "lightEmission",
+                        "lightAbsorption",
+                        "lifeExpectancyMin",
+                        "lifeExpectancyMax",
+                        "fertilityRate",
+                        "fertilityAgeMin",
+                        "fertilityAgeMax",
+                        "fertilityEnergyMin",
+                        "mass",
+                        "height"])
+
         self.role = random.choice([parent.role, random.choice(CELL_ROLES)])
+        self.lifeExpectancy = random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)
 
         self.luck += (parent.luck/(80+parent.age)) * self.mutationRate # Get a bit of luck from your parent
-
-        self.lightEmission = (parent.lightEmission/100) * self.mutationRate
-        self.lightAbsorption = (parent.lightAbsorption/100) * self.mutationRate
-        self.lifeExpectancyMin = (parent.lifeExpectancyMin/100) * self.mutationRate
-        self.lifeExpectancyMax = (parent.lifeExpectancyMax/100) * self.mutationRate
-        self.lifeExpectancy = random.uniform(self.lifeExpectancyMin, self.lifeExpectancyMax)
-        self.fertilityRate = (parent.fertilityRate/100) * self.mutationRate
-        self.fertilityAgeMin = (parent.fertilityAgeMin/100) * self.mutationRate
-        self.fertilityAgeMax = (parent.fertilityAgeMax/100) * self.mutationRate
-        self.fertilityEnergyMin = (parent.fertilityEnergyMin/100) * self.mutationRate
-
-        self.mass = (parent.mass/(110+parent.age)) * self.mutationRate
-        self.height = (parent.height/(110+parent.age)) * self.mutationRate
-
-        self.alpha = random.uniform(CELL_STATE_PLASMA_ALPHA_MIN, CELL_STATE_PLASMA_ALPHA_MAX)
-        self.memory.append((self.turnCount, "Became Plasma", 0))
+        self.height -= (parent.height/2)
+        self.mass -= (parent.mass/2)
 
     def moveOrSquish(self, moving, direction):
         dx, dy = direction
@@ -571,34 +573,44 @@ class Cell:
             self.topEnergy = self.energy
         if self.energy >= self.cellEnergyRecord * random.uniform(0.9, 1.1):
             self.cellEnergyRecord = self.energy
-            self.topEnergyDecay = self.cellEnergyRecord - ((self.cellEnergyRecord/100) * CELL_DECAY_TOP_ENERGY_MULTIPLIER)
+            self.topEnergyDecay = random.uniform(0.95, 1.05) * (self.energy/CELL_DECAY_EXCESS_ENERGY_MULTIPLIER)
             self.energy -= self.topEnergyDecay
             self.memory.append((self.turnCount, "Fuck, being this cool is too hard, I lost energy", self.topEnergyDecay))
-            self.topEnergyDecay = 0
         #print(f"Rated {self.attractiveness}% hot")
-        self.memory.append((self.turnCount, "I'm really rated this hot!?", {self.attractiveness}))
+        self.memory.append((self.turnCount, "I'm really rated {self.attractiveness} percent hot!?", {self.attractiveness}))
         if (self.energy <= 0) or (self.age >= (random.uniform(0.9,1.1)*self.lifeExpectancy)):  # Death by starvation or old age
             self.alive = False
-            self.memory.append((self.turnCount, "I either starved, or got old - can't tell.", {"energy": self.energy, "age": self.age, "lifeExpectancy": self.lifeExpectancy}))
             print(f"Died from state {self.state} Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn")
             if self.age < self.lifeExpectancy:
                 self.stats.addCellDeath(CELL_DEATH_REASON_STARVATION)
+                self.memory.append((self.turnCount, "I got too tired", {"energy": self.energy, "age": self.age, "lifeExpectancy": self.lifeExpectancy}))
             else:
                 self.stats.addCellDeath(CELL_DEATH_REASON_AGE)
+                self.memory.append((self.turnCount, "I got too old", {"energy": self.energy, "age": self.age, "lifeExpectancy": self.lifeExpectancy}))
             #else:
             #    self.stats.addCellDeath(CELL_DEATH_REASON_STARVATION)
             self.mass = self.mass+self.energy
             self.energy = 0
             self.state = CellState.INERT
-            self.environment.addLightAt(self.x, self.y, CELL_DEATH_RELEASE_LIGHT)
             self.environment.addInertAt(self.x, self.y, ((self.mass/CELL_DEATH_RELEASE_INERT_MODIFIER)*20))
             self.mass = (self.mass/CELL_DEATH_RELEASE_INERT_MODIFIER)*80
+            if self.lightEmission > self.lightEmission-1: # edit to make sense later lol
+                self.environment.addLightAt(self.x, self.y, CELL_DEATH_RELEASE_LIGHT)
             #lightGrid[self.x, self.y] += CELL_DEATH_RELEASE_LIGHT  # Dead cells release light for some reason
             #inertGrid[self.x, self.y] += CELL_DEATH_RELEASE_INERT # Drop inert resources onto inert grid
 
     def needTurn(self, turn):
         return self.turnCount < turn
     
+    def mutateProp(self, props):
+            for propName in props:
+                parentVal = getattr(self.parent, propName)
+                mutatedValue = parentVal + (self.luckChoice() * ((parentVal/100) * self.mutationRate))
+                setattr(self, propName, mutatedValue)
+
+    def luckChoice(self):
+        return random.choices([-1, 1], k = 1, weights = [((self.luck + 100)/200), (1-((self.luck + 100)/200))])[0] # Luck (assuming scaled -100 to 100) and a random chance weight the + or - choice
+
     def summarizeMemory(self):
         if self.alive == True:
             self.previousAlive = True
