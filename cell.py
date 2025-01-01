@@ -560,9 +560,9 @@ class Cell:
                                                             (self.speed*CELL_ATTRACTIVENESS_NORM_SPEED)+ \
                                                             (self.lightEmission*CELL_ATTRACTIVENESS_NORM_LIGHT_EMISSION) + \
                                                             (self.mutationRate*CELL_ATTRACTIVENESS_NORM_MUTATION_RATE) + \
-                                                            (self.lifeExpectancy)*CELL_ATTRACTIVENESS_NORM_LIFE_EXPECTANCY) + \
+                                                            (self.lifeExpectancy)*CELL_ATTRACTIVENESS_NORM_LIFE_EXPECTANCY + \
                                                             (self.mass)*CELL_ATTRACTIVENESS_NORM_MASS + \
-                                                            (self.height)*CELL_ATTRACTIVENESS_NORM_HEIGHT/11
+                                                            (self.height)*CELL_ATTRACTIVENESS_NORM_HEIGHT/11)
         if self.attractiveness > self.CellAttractivenessTopRecord:
             self.CellAttractivenessTopRecord = self.attractiveness
             self.lifeExpectancyMax += self.lifeExpectancyMax/100

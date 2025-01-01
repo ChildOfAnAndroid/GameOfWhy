@@ -399,7 +399,7 @@ VISUALISATION_OUTPUT_FILE_SAVE_FORMAT = "png" # File format
 VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER = "visualisations"
 VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER = f"{datetime.now().isoformat(timespec="seconds")}"
 VISUALISATION_OUTPUT_SCREEN_DISABLE = False # Disable main screen output
-VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN = 100 # Update the main screen output every N turns
+VISUALISATION_OUTPUT_UPDATE_EVERY_N_TURN = 1 # Update the main screen output every N turns
 
 CELL_MEMORY_DISPLAY_MODE = "event" # Display memory by event type (event) or turn order (turn) 
 
