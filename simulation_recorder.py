@@ -88,7 +88,7 @@ class SimulationRecorder:
             "cell": cell,
             "stats": self.buildStatArray(cell, True)
         }
-        self.records.append(("birth", self.cellArchive[cell.id]))
+        # self.records.append(("birth", self.cellArchive[cell.id]))
 
     def recordDeath(self, cell):
         if not cell.id in self.cellArchive:
@@ -196,6 +196,6 @@ class SimulationRecorder:
             get_record_pattern = self.getDeathRecordPattern
         header = get_record_pattern().format(**stats)
 
-        memories = self.getMemories(cell)
+        #memories = self.getMemories(cell)
 
-        return header + "\n" + memories
+        return header # + "\n" + memories

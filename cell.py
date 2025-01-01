@@ -36,7 +36,16 @@ class Cell:
             self.spawnNew()
         else:
             self.spawnChild(parent)
+        self.saveBirthStats()
         SimulationRecorder().recordBirth(self)
+
+    def saveBirthStats(self):
+        onBirthStats = (f"\n Hey, Cell {self.id} here. Just passing on my birth certificate! Born to {self.parent} on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
+            
+        with open("birthDeathStats.txt", "a") as file:
+            file.write(onBirthStats + "\n")
+
+        print(f"Cell {self.id} birth written to birthDeathStats.txt successfully!")
         
     def spawnNew(self):
         self.turnCount = 0
@@ -234,7 +243,7 @@ class Cell:
             self.fertilityRate -= 1
             self.resilience += max(15,random.uniform(0,0.2)*self.resilience)
             self.energy -= min(5,random.uniform(0,0.2)*self.energy)
-            self.memory.append((self.turnCount, "Escaped a death squish!", {signal_at_target}))
+            self.memory.append((self.turnCount, "Escaped a death squish!", signal_at_target))
             if not self.alive: # if cell is already inert and needs to move, update inertGrid
                 self.environment.addInertAt(self.x, self.y, (random.uniform(0.8, 1.2) * CELL_DEATH_RELEASE_INERT))
             return True
@@ -266,14 +275,14 @@ class Cell:
                     #print(f"The Vengabus is Evolving O.o at signal {signal_at_target}")
                     self.stats.addCellPush()
                     self.stats.addCellMove()
-                    self.memory.append((self.turnCount, "The Vengabus is Evolving O.o at signal {signal_at_target} (Move Bounced)", (new_x, new_y)))
+                    self.memory.append((self.turnCount, f"The Vengabus is Evolving O.o at signal {signal_at_target} (Move Bounced)", (new_x, new_y)))
                     self.luck += 2
                     if not self.alive:
                         self.environment.addInertAt(self.x, self.y, CELL_DEATH_RELEASE_INERT)
                 return True
                     
         print(f"IDK WHAT'S HERE: {cell} at signal {signal_at_target}")
-        self.memory.append((self.turnCount, "IDK WHAT'S HERE: {cell} at signal {signal_at_target}", {signal_at_target}))
+        self.memory.append((self.turnCount, f"IDK WHAT'S HERE: {cell} at signal {signal_at_target}", signal_at_target))
         return True
         
     def move(self):
@@ -298,7 +307,7 @@ class Cell:
                 new_x = (self.x + dx) % self.environment.grid.shape[0]
                 new_y = (self.y + dy) % self.environment.grid.shape[1]
                 signal = self.environment.signalGrid[new_x, new_y]
-                self.memory.append((self.turnCount, "Considered another direction", ({dx},{dy})))
+                self.memory.append((self.turnCount, "Considered another direction", (dx, dy)))
                 #print(f"  Checking move to ({new_x}, {new_y}), signal: {signal}")  # Debug
                 if signal > maxSignal and self.environment.canAddCellAt(new_x, new_y):
                     # print(f"Best signal")
@@ -333,7 +342,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Blocked by stronger cell", (new_x, new_y)))
         else:
             # Handle non-cell cases (e.g., empty space, gas, or other markers)
-            self.memory.append((self.turnCount, f"No cell at ({new_x}, {new_y}) to compare resilience, {self.x, self.y}"))
+            self.memory.append((self.turnCount, f"No cell at ({new_x}, {new_y}) to compare resilience", (self.x, self.y)))
         
         if self.x != new_x or self.y != new_y:
             print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
@@ -374,7 +383,7 @@ class Cell:
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         elif random.random() < 0.01 and self.energy > self.fertilityEnergyMin: # Non-plasma cells have a random chance to emit light
             self.lightEmission = 1
-            self.memory.append((self.turnCount, "Suddenly emitted light?!", (self.lightEmission)))
+            self.memory.append((self.turnCount, "Suddenly emitted light?!", self.lightEmission))
             self.lightEmission = 0
             # lightGrid[self.x, self.y] = min(lightGrid[self.x, self.y] + self.light_emission, 100)
         else:
@@ -388,7 +397,7 @@ class Cell:
             vibes = self.environment.getAttractivenessAt(self.x, self.y) # waifuGrid[self.x, self.y]
             attractivenessGain = vibes * self.growthRate * (CELL_ATTRACTIVENESS_GAIN_MODIFIER/50)
             self.attractiveness += attractivenessGain
-            self.memory.append((self.turnCount, "DAT ASS GAINED ATTRACTIVENESS", {attractivenessGain}))
+            self.memory.append((self.turnCount, "DAT ASS GAINED ATTRACTIVENESS", attractivenessGain))
         else:
             self.environment.setAttractivenessAt(self.x, self.y, 0)
             # waifuGrid[self.x, self.y] = 0
@@ -565,7 +574,7 @@ class Cell:
             self.energy -= self.topEnergyDecay
             self.memory.append((self.turnCount, "Fuck, being this cool is too hard, I lost energy", self.topEnergyDecay))
         #print(f"Rated {self.attractiveness}% hot")
-        self.memory.append((self.turnCount, "I'm really rated {self.attractiveness} percent hot!?", {self.attractiveness}))
+        self.memory.append((self.turnCount, f"I'm really rated {self.attractiveness} percent hot!?", self.attractiveness))
         if (self.energy <= 0) or (self.age >= (random.uniform(0.9,1.1)*self.lifeExpectancy)):  # Death by starvation or old age
             self.alive = False
             print(f"Died from state {self.state} Energy: {self.energy}, lost {(1 / self.resilience) * self.speed} this turn")
@@ -577,6 +586,7 @@ class Cell:
                 self.memory.append((self.turnCount, "I got too old", {"energy": self.energy, "age": self.age, "lifeExpectancy": self.lifeExpectancy}))
             #else:
             #    self.stats.addCellDeath(CELL_DEATH_REASON_STARVATION)
+            SimulationRecorder().recordDeath(self)
             self.mass = self.mass+self.energy
             self.energy = 0
             self.state = CellState.INERT
@@ -606,7 +616,12 @@ class Cell:
         if self.alive == False and self.previousAlive == True:
             self.previousAlive = False
 
-            SimulationRecorder().recordDeath(self)
+            onDeathStats = (f"\n Hey, Cell {self.id} here. Just passing on my memoir... Died at: {self.age}, on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
+            
+            with open("birthDeathStats.txt", "a") as file: # a is append! :)
+                file.write(onDeathStats + "\n")
+
+            print(f"Cell {self.id} death written to birthDeathStats.txt successfully!")
 
     def runLoop(self, turn):
         self.turnCount = turn
