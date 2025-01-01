@@ -430,6 +430,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Became Plasma"))
             else:
                 self.stats.addCellStateStable()
+                self.memory.append((self.turnCount, "Still Plasma"))
         elif CELL_STATE_GAS_ENERGY < self.energy <= CELL_STATE_PLASMA_ENERGY:
             if not hasattr(self, "state") or self.state != CellState.GAS:
                 self.state = CellState.GAS
@@ -439,6 +440,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Became Gas"))
             else:
                 self.stats.addCellStateStable()
+                self.memory.append((self.turnCount, "Still Gas"))
         elif CELL_STATE_LIQUID_ENERGY < self.energy <= CELL_STATE_GAS_ENERGY:
             if not hasattr(self, "state") or self.state != CellState.LIQUID:
                 self.state = CellState.LIQUID
@@ -448,6 +450,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Became Liquid", 0))
             else:
                 self.stats.addCellStateStable()
+                self.memory.append((self.turnCount, "Still Liquid"))
         elif CELL_STATE_MESOPHASE_ENERGY < self.energy <= CELL_STATE_LIQUID_ENERGY:
             if not hasattr(self, "state") or self.state != CellState.MESOPHASE:
                 self.state = CellState.MESOPHASE
@@ -457,6 +460,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Entered the Mesophase", 0))
             else:
                 self.stats.addCellStateStable()
+                self.memory.append((self.turnCount, "Still Mesophase"))
         elif CELL_STATE_SOLID_ENERGY < self.energy <= CELL_STATE_MESOPHASE_ENERGY:
             if not hasattr(self, "state") or self.state != CellState.SOLID:
                 self.state = CellState.SOLID
@@ -466,6 +470,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Got Hard", 0))
             else:
                 self.stats.addCellStateStable()
+                self.memory.append((self.turnCount, "Still Hard"))
         elif CELL_STATE_INERT_ENERGY < self.energy <= CELL_STATE_SOLID_ENERGY:
             if not hasattr(self, "state") or self.state != CellState.INERT:
                 self.state = CellState.INERT
@@ -475,6 +480,7 @@ class Cell:
                 self.memory.append((self.turnCount, "Became Inert", 0))
             else:
                 self.stats.addCellStateStable()
+                self.memory.append((self.turnCount, "Still Inert"))
 
     def reproduce(self):
         if not self.alive:
