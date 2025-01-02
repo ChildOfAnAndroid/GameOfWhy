@@ -2,7 +2,9 @@ from functools import partial, wraps
 from os import makedirs
 from os.path import isdir
 
-from config import VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER, VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER, RECORDER_PRINT_TO_STDOUT, RECORDER_PRINT_TO_FILE, CELL_MEMORY_DISPLAY_MODE, RECORDER_STATS_DEFINITION
+from config import VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER, VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER, \
+                   RECORDER_PRINT_TO_STDOUT, RECORDER_PRINT_TO_FILE, CELL_MEMORY_DISPLAY_MODE, \
+                   RECORDER_STATS_DEFINITION, RECORDER_PRINT_MEMORIES
 
 def singleton(cls):
     """Make a class a Singleton class (only one instance)"""
@@ -41,7 +43,7 @@ class SimulationRecorder:
                 display += " " + x
             else:
                 display += x
-        return display.capitalize()
+        return display.title()
 
     def getBirthRecordPattern(self):
         if self.birthRecordPattern is None:
@@ -59,7 +61,8 @@ class SimulationRecorder:
 
     def getDeathRecordPattern(self):
         if self.deathRecordPattern is None:
-            self.deathRecordPattern = "Hey, Cell {id} here. Just passing on my memoir... at: {death_age}:\n"
+            self.deathRecordPattern = "Hey, Cell {id} here. Just passing on my memoir... at: {death_age:.2f}:\n"
+            self.deathRecordPattern += "My Dear Parent is Cell {parent}\n"
             statsToWrite = self.getStatDefinition()
             for stat in statsToWrite:
                 name = stat["name"] if "name" in stat else self.statNameToDisplayName(stat["stat"])
@@ -195,7 +198,8 @@ class SimulationRecorder:
         else:
             get_record_pattern = self.getDeathRecordPattern
         header = get_record_pattern().format(**stats)
-
-        #memories = self.getMemories(cell)
+        if RECORDER_PRINT_MEMORIES:
+            memories = self.getMemories(cell)
+            return header + "\n" + memories
 
         return header # + "\n" + memories

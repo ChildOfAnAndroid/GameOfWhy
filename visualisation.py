@@ -12,10 +12,12 @@ class Visualisation:
         # Visualization and Interaction
         self.stats = stats
         self.environments = environments
+        self.displaySignalGrid, self.displayInertGrid, self.displayWaifuGrid, self.displayLightGrid = False, True, False, False
         if not VISUALISATION_OUTPUT_SCREEN_DISABLE:
             plt.ion()
         self.fig, self.ax = plt.subplots()
-        self.cid = self.fig.canvas.mpl_connect('button_press_event', self.on_click)
+        self.mousecid = self.fig.canvas.mpl_connect('button_press_event', self.on_click)
+        self.keycid = self.fig.canvas.mpl_connect('key_press_event', self.on_key)
         if ((VISUALISATION_OUTPUT_FILE_SAVE_EVERY_N_TURNS != False and VISUALISATION_OUTPUT_FILE_SAVE_EVERY_N_TURNS is not None) or\
             VISUALISATION_OUTPUT_FILE_SAVE_FINAL_TURN != False):
             # Create the folders to output
@@ -23,14 +25,18 @@ class Visualisation:
                 makedirs(f"{VISUALISATION_OUTPUT_FILE_SAVE_MAIN_FOLDER}/{VISUALISATION_OUTPUT_FILE_SAVE_SIM_FOLDER}/")
 
     def runLoop(self, turn, end=False):
-        print(f"Step {turn} start visualisation")
+        print(f"Step {turn} start visualisation {self.displaySignalGrid}, {self.displayInertGrid}, {self.displayWaifuGrid}, {self.displayLightGrid}")
         if self.needRender(turn, end):
             self.ax.clear()
             #ax.imshow(gridSize, alpha=0.5)
-            self.ax.imshow(self.environments.signalGrid, cmap="RdBu", alpha=0.2)
-            self.ax.imshow(self.environments.inertGrid, cmap=INERT_GRID_COLORMAP, alpha=INERT_GRID_TRANSPARENCY, interpolation = "bilinear")
-            self.ax.imshow(self.environments.waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY, interpolation="bilinear")
-            self.ax.imshow(self.environments.lightGrid, cmap=LIGHT_GRID_COLORMAP, interpolation="bilinear")
+            if self.displaySignalGrid:
+                self.ax.imshow(self.environments.signalGrid, cmap="RdBu", alpha=0.2)
+            if self.displayInertGrid:
+                self.ax.imshow(self.environments.inertGrid, cmap=INERT_GRID_COLORMAP, alpha=INERT_GRID_TRANSPARENCY) # interpolation = "bilinear"
+            if self.displayWaifuGrid:
+                self.ax.imshow(self.environments.waifuGrid, cmap="BuPu", alpha=ATTRACTIVENESS_GRID_TRANSPARENCY) # interpolation = "bilinear"
+            if self.displayLightGrid:
+                self.ax.imshow(self.environments.lightGrid, cmap=LIGHT_GRID_COLORMAP) # interpolation = "bilinear"
 
             for x in range(self.environments.grid.shape[0]):
                 for y in range(self.environments.grid.shape[1]):
@@ -111,3 +117,19 @@ class Visualisation:
             return
         x, y = int(event.ydata), int(event.xdata)
         self.environments.attemptForcedSpawn((x, y))
+
+    def on_key(self, event):
+        match event.key:
+            case "d":
+                print("Signal grid")
+                self.displaySignalGrid = not self.displaySignalGrid
+            case "i":
+                print("Inert grid")
+                self.displayInertGrid = not self.displayInertGrid
+            case "w":
+                print("Waifu grid")
+                self.displayWaifuGrid = not self.displayWaifuGrid
+            case "l":
+                print("Light grid")
+                self.displayLightGrid = not self.displayLightGrid
+        return

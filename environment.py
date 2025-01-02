@@ -26,9 +26,11 @@ class Environment:
                 cell = self.grid[x, y]
 
                 # Base signal from light and waifu grids
-                baseSignal = (self.lightGrid[x, y] * LIGHT_GRID_IMPORTANCE) + (self.waifuGrid[x, y] * ATTRACTIVENESS_GRID_IMPORTANCE) + (self.inertGrid[x, y] * INERT_GRID_IMPORTANCE)
-
-                if cell is None or cell == 0 or cell == CellState.GAS:
+                #baseSignal = (((self.lightGrid[x, y]) * LIGHT_GRID_IMPORTANCE) + ((self.waifuGrid[x, y]) * ATTRACTIVENESS_GRID_IMPORTANCE) + ((self.inertGrid[x, y]) * INERT_GRID_IMPORTANCE))
+                #baseSignal = ((self.lightGrid[x, y]) + (self.waifuGrid[x, y]) + (self.inertGrid[x, y]))
+                self.signalGrid[x, y] = max(0, min(5000, (self.lightGrid[x, y]))) + max(0, min(5000, (self.waifuGrid[x, y])))
+                continue
+                if cell is None or cell == 0:
                     # Empty or passable space, keep base signal
                     self.signalGrid[x, y] = baseSignal
                 elif isinstance(cell, Cell):
@@ -51,6 +53,8 @@ class Environment:
             self.lightGrid[x, y] = min((self.lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT), ENVIRONMENT_LIGHT_CLIP_MAX)  # Cap at max brightness
         self.lightGrid -= random.uniform(-0.5, 1.5) * LIGHT_GRID_DECAY_RATE
         self.lightGrid = np.clip(self.lightGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
+        self.inertGrid = np.clip(self.inertGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
+        self.waifuGrid = np.clip(self.waifuGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
         self.waifuGrid -= ATTRACTIVENESS_GRID_DECAY_RATE
         self.inertGrid -= INERT_GRID_DECAY_RATE
         #print(lightGrid)
