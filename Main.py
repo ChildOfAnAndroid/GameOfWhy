@@ -42,31 +42,30 @@ class Main:
         # Timer setup for simulation loop
         self.turn = 0
         self.timer = Timer(0.5, connect=self.run, iterations=-1, start=True)
-        self.timer.start()
         self.fastForward = True
 
     def run(self, event=None):
         if self.turn > NUM_STEPS:
             if self.timer.running:
                 self.timer.stop()
-            self.timer.stop()
             self.stats.endRun()
             self.visualisation.endRun(NUM_STEPS)
             self.simulationRecorder.end()
             return
         
-        try:
-            if self.fastForward:
-                while self.turn <= NUM_STEPS:
-                    self.runLoop(self.turn, self.turn == NUM_STEPS)
-            else:
-                if not self.timer.running:
-                    self.timer.start()
+        #try:
+        if self.fastForward:
+            while self.turn <= NUM_STEPS:
+                self.timer.stop()
                 self.runLoop(self.turn, self.turn == NUM_STEPS)
-        except Exception as e:
-            print(f"Exception in runLoop: {e}")
-            if self.timer.running:
-                self.timer.stop()  # Stop timer if there's an issue
+        else:
+            if not self.timer.running:
+                self.timer.start()
+            self.runLoop(self.turn, self.turn == NUM_STEPS)
+        #except Exception as e:
+        #    print(f"Exception in runLoop: {e}")
+        #    if self.timer.running:
+        #        self.timer.stop()
 
     def runLoop(self, turn, end):
         print(f"turn {self.turn} starting!")

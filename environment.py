@@ -28,7 +28,7 @@ class Environment:
                 # Base signal from light and waifu grids
                 #baseSignal = (((self.lightGrid[x, y]) * LIGHT_GRID_IMPORTANCE) + ((self.waifuGrid[x, y]) * ATTRACTIVENESS_GRID_IMPORTANCE) + ((self.inertGrid[x, y]) * INERT_GRID_IMPORTANCE))
                 #baseSignal = ((self.lightGrid[x, y]) + (self.waifuGrid[x, y]) + (self.inertGrid[x, y]))
-                self.signalGrid[x, y] = max(0, min(5000, (self.lightGrid[x, y]))) + max(0, min(5000, (self.waifuGrid[x, y])))
+                self.signalGrid[x, y] = (self.lightGrid[x, y]) + (self.waifuGrid[x, y])
                 continue
                 if cell is None or cell == 0:
                     # Empty or passable space, keep base signal
@@ -50,11 +50,12 @@ class Environment:
         # Brighten some random areas
         for _ in range(ENVIRONMENT_LIGHT_ENRICHMENT_SOURCE_NUM):  # Number of light sources
             x, y = random.randint(0, GRID_SIZE - 1), random.randint(0, GRID_SIZE - 1)
-            self.lightGrid[x, y] = min((self.lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT), ENVIRONMENT_LIGHT_CLIP_MAX)  # Cap at max brightness
+            self.lightGrid[x, y] = (self.lightGrid[x, y] + ENVIRONMENT_LIGHT_ENRICHMENT)  # Cap at max brightness
         self.lightGrid -= random.uniform(-0.5, 1.5) * LIGHT_GRID_DECAY_RATE
         self.lightGrid = np.clip(self.lightGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
         self.inertGrid = np.clip(self.inertGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
         self.waifuGrid = np.clip(self.waifuGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
+        self.signalGrid = np.clip(self.signalGrid, ENVIRONMENT_LIGHT_CLIP_MIN, ENVIRONMENT_LIGHT_CLIP_MAX)
         self.waifuGrid -= ATTRACTIVENESS_GRID_DECAY_RATE
         self.inertGrid -= INERT_GRID_DECAY_RATE
         #print(lightGrid)
@@ -106,7 +107,7 @@ class Environment:
     # Change light amount at a coordinate by an arbitrarty amount while ensuring bounds
     def setLightAt(self, x, y, value):
         x, y = self._boundXY((x, y))
-        self.lightGrid[x, y] = min(ENVIRONMENT_LIGHT_CLIP_MAX, max(ENVIRONMENT_LIGHT_CLIP_MIN, value))
+        self.lightGrid[x, y] += value
         return self.lightGrid[x, y] > 0
     
     def addLightAt(self, x, y, amount):
@@ -124,7 +125,7 @@ class Environment:
     
     def setAttractivenessAt(self, x, y, value):
         x, y = self._boundXY((x, y))
-        self.waifuGrid[x, y] = min(ENVIRONMENT_ATTRACTIVENESS_CLIP_MAX, max(ENVIRONMENT_ATTRACTIVENESS_CLIP_MIN, value))
+        self.waifuGrid[x, y] += value
         return self.waifuGrid[x, y] > 0
     
     def getInertAt(self, x, y):
