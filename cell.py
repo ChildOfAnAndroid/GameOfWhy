@@ -378,8 +378,8 @@ class Cell:
                 new_y = (self.y + dy) % self.environment.grid.shape[1]
                 if new_x == self.prevX and new_y == self.prevY:
                     self.moveLoopCounter += 1
-                    print({self.moveLoopCounter})
-                if self.moveLoopCounter > 2:
+                    #print({self.moveLoopCounter})
+                if self.moveLoopCounter > 3:
                     (dx), (dy) = random.choice(potentialMoves)
                     print(f"reset move loop counter")
                     self.moveLoopCounter = 0
@@ -417,11 +417,11 @@ class Cell:
             self.memory.append((self.turnCount, f"No cell at ({new_x}, {new_y}) to compare resilience", (self.x, self.y)))
         
         if self.x != new_x or self.y != new_y:
-            print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
+            #print(f"Failed moving {self.id} from ({self.x}, {self.y}) to ({new_x}, {new_y})")
             self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
                     
         else:
-            print(f"Failed moving {self.id} onto itself")
+            #print(f"Failed moving {self.id} onto itself")
             self.memory.append((self.turnCount, "Move Failed", (new_x, new_y)))
 
     def waterErosion(self, dx, dy):
@@ -697,10 +697,10 @@ class Cell:
 
             onDeathStats = (f"\n Hey, Cell {self.id} here. Just passing on my memoir... Died at: {self.age}, on turn {self.turnCount}, at {self.x},{self.y}. Cell role: {self.role}. Attractiveness: {self.attractiveness}. Growth Decay Rate: {self.growthDecayRate}. Luck: {self.luck}. Highest Energy: {self.cellEnergyRecord}. Energy: {self.energy}. Growth Rate: {self.growthRate}. Resilience: {self.resilience}. Perception Strength: {self.perceptionStrength}. Speed: {self.speed}. Light Emission: {self.lightEmission}. Light Absorption: {self.lightAbsorption}. Mutation Rate: {self.mutationRate}. Life Expectancy: {self.lifeExpectancy}. Fertility Rate: {self.fertilityRate}. Fertility Age: {self.fertilityAgeMin} - {self.fertilityAgeMax}. Energy needed for reproduction: {self.fertilityEnergyMin}. Mass: {self.mass}. Height: {self.height}. Hue: {self.hue}.")
             
-            with open("birthDeathStats.txt", "a") as file: # a is append! :)
-                file.write(onDeathStats + "\n")
+            #with open("birthDeathStats.txt", "a") as file: # a is append! :)
+                #file.write(onDeathStats + "\n")
 
-            print(f"Cell {self.id} death written to birthDeathStats.txt successfully!")
+            #print(f"Cell {self.id} death written to birthDeathStats.txt successfully!")
 
     def runLoop(self, turn):
         self.turnCount = turn

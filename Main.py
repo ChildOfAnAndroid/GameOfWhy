@@ -4,6 +4,8 @@
 import cProfile
 import pstats
 
+from vispy.app import Timer, run as vispy_run
+
 from automaton import *
 from environment import *
 from stats import *
@@ -37,27 +39,47 @@ class Main:
         self.visualisation = Visualisation(self.stats, self.environments)
         self.simulationRecorder = SimulationRecorder()
 
-    def run(self):
-        for turn in range(NUM_STEPS+1):
-            self.runLoop(turn, turn == NUM_STEPS)
+        # Timer setup for simulation loop
+        self.turn = 0
+        self.timer = Timer(0.5, connect=self.run, iterations=-1, start=True)
+        self.timer.start()
+        self.fastForward = True
+
+    def run(self, event=None):
+        if self.turn > NUM_STEPS:
+            if self.timer.running:
+                self.timer.stop()
+            self.timer.stop()
+            self.stats.endRun()
+            self.visualisation.endRun(NUM_STEPS)
+            self.simulationRecorder.end()
+            return
         
-        self.stats.endRun()
-        self.visualisation.endRun(NUM_STEPS)
-        self.simulationRecorder.end()
+        try:
+            if self.fastForward:
+                while self.turn <= NUM_STEPS:
+                    self.runLoop(self.turn, self.turn == NUM_STEPS)
+            else:
+                if not self.timer.running:
+                    self.timer.start()
+                self.runLoop(self.turn, self.turn == NUM_STEPS)
+        except Exception as e:
+            print(f"Exception in runLoop: {e}")
+            if self.timer.running:
+                self.timer.stop()  # Stop timer if there's an issue
 
     def runLoop(self, turn, end):
+        print(f"turn {self.turn} starting!")
+        print(f"Timer running: {self.timer.running}")
         self.stats.beginTurn()
         self.environments.runLoop(turn)
         self.visualisation.runLoop(turn, end=end)
         self.automaton.runLoop(turn)
         self.stats.endTurn()
         self.simulationRecorder.endTurn()
-
-
-# Set it to auto-run this file
-#if __name__ == "__main__":
-#    main = Main()
-#    main.run()
+        self.turn += 1
+        print(f"turn {self.turn} over!")
+        print(f"Timer running: {self.timer.running}")
 
 # Profiling Block
 if __name__ == "__main__":
@@ -68,6 +90,7 @@ if __name__ == "__main__":
     # Run your simulation
     main = Main()
     main.run()
+    vispy_run()
 
     # Stop profiling
     profiler.disable()
