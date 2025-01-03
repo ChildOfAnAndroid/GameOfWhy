@@ -1,6 +1,9 @@
 # MAIN FILE: GAME OF WHY
 # CHARIS CAT 2024
 
+import cProfile
+import pstats
+
 from automaton import *
 from environment import *
 from stats import *
@@ -52,6 +55,23 @@ class Main:
 
 
 # Set it to auto-run this file
+#if __name__ == "__main__":
+#    main = Main()
+#    main.run()
+
+# Profiling Block
 if __name__ == "__main__":
+    # Initialize the profiler
+    profiler = cProfile.Profile()
+    profiler.enable()  # Start profiling
+
+    # Run your simulation
     main = Main()
     main.run()
+
+    # Stop profiling
+    profiler.disable()
+
+    # Print profiling stats
+    stats = pstats.Stats(profiler)
+    stats.sort_stats('tottime').print_stats(10)  # Top 10 time-consuming functions

@@ -435,7 +435,6 @@ class Cell:
             self.environment.addInertAt(leftX,leftY,(inertUnderCell/10))
             self.environment.addInertAt(rightX,rightY,(inertUnderCell/10))
 
-
     def getCellColor(self):
         if self.organism:
             if self.organism.name: # sentient = random color picked once

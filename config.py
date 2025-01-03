@@ -4,13 +4,12 @@
 from datetime import datetime
 from enum import Enum
 import random
-from matplotlib.colors import LinearSegmentedColormap
 
 
 # ENVIRONMENT SIMULATION SETTINGS #
 GRID_SIZE = 100
-NUM_STEPS = 100000
-CELL_BASE_COUNT = 50 #50
+NUM_STEPS = 1000
+CELL_BASE_COUNT = 500 #50
 
 class CellState(Enum):
     PLASMA = "plasma"
@@ -63,8 +62,8 @@ ORGANISM_STATE_SIMPLE_COLOR_MAX = 0
 ENVIRONMENT_VISIBILITY_MULTIPLIER = 1 # raise or lower the amount of visual acuity for cells in the environment
 
 # environmental enrichment settings
-ENVIRONMENT_LIGHT_ENRICHMENT = 1000
-ENVIRONMENT_LIGHT_ENRICHMENT_SOURCE_NUM = 50
+ENVIRONMENT_LIGHT_ENRICHMENT = 500
+ENVIRONMENT_LIGHT_ENRICHMENT_SOURCE_NUM = 50 #50
 ENVIRONMENT_LIGHT_ABSORPTION_WASTE = 1.2
 
 # environmental decay settings
@@ -471,14 +470,14 @@ CELL_MOVE_ENERGY_DECAY_MODIFIER = 100
 # VISUALISATION SETTINGS #
 VISUALISATION_BASE_ENERGY_TOP_RECORD = 100
 MAIN_GRID_IMPORTANCE = 1
-INERT_GRID_TRANSPARENCY = 1
+INERT_GRID_TRANSPARENCY = 0.7
 INERT_GRID_IMPORTANCE = 1.2
 ATTRACTIVENESS_GRID_TRANSPARENCY = 0.2
 ATTRACTIVENESS_GRID_IMPORTANCE = 1.3
 LIGHT_GRID_TRANSPARENCY = 0.3
 LIGHT_GRID_IMPORTANCE = 2
 
-# Custom Colormaps
+"""# Custom Colormaps
 LIGHT_GRID_COLORMAP = LinearSegmentedColormap.from_list("lightGridColormap", [
     (0.0, (0, 0, 0, 0.2)),  # Black, fully opaque
     (0.4, (0.4, 0.3, 0.1, 0.15)),  # Dark brownish, less opaque
@@ -491,7 +490,7 @@ INERT_GRID_COLORMAP = LinearSegmentedColormap.from_list("inertGridColormap", [
     (0.1, 0.3, 0.1, 1),  # green
     (0.4, 0.3, 0.2, 1),  # brown
     (0.2, 0.2, 0.2, 1)   # grey
-])
+])"""
 
 VISUALISATION_OUTPUT_FILE_SAVE_EVERY_N_TURNS = 100 # Save the main screen output as a file every N turns
 VISUALISATION_OUTPUT_FILE_SAVE_FINAL_TURN = True # Save the final screen as a file
